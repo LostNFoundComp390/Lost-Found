@@ -7,10 +7,10 @@ public class User {
     private final String email;
 
     private User(
-            String role,
-            String username,
-            String password,
-            String email) {
+        String role,
+        String username,
+        String password,
+        String email) {
 
         this.role = role;
         this.username = username;
@@ -20,28 +20,36 @@ public class User {
 
     // Static factory method
     public static User of(
-            String role,
-            String username,
-            String password,
-            String email) {
+        String role,
+        String username,
+        String password,
+        String email) {
 
         return new User(role, username, password, email);
 
     }
 
-    public String getUsername() {
-        return username;
+    public static UserPublic toPublic (
+        String role,
+        String username,
+        String email
+    ){
+       return UserPublic.of(role, username, email);
     }
 
-    public String getPassword() {
-        return password;
-    }
+        public String getUsername () {
+            return username;
+        }
 
-    public String getEmail() {
-        return email;
-    }
+        public String getPassword () {
+            return password;
+        }
 
-    public String getRole() {
-        return role;
+        public String getEmail () {
+            return email;
+        }
+
+        public String getRole () {
+            return role;
+        }
     }
-}

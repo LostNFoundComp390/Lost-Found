@@ -11,7 +11,6 @@ public class DbPostsRepository implements PostRepository{
         this.db = db;
     }
 
-    // Save a new post into the database
     public long save(Post post){
         String sql = """ 
                INSERT OR IGNORE INTO Listings (
@@ -123,11 +122,10 @@ public class DbPostsRepository implements PostRepository{
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
+        // Todo: handle not found post
         return posts;
     }
 
-    // Searches the database for the requested category then returns a list of all the rows
     public List<Post> searchCategory(String category) {
         // Initialization
         String sql = "SELECT * FROM Listings WHERE category = ?";

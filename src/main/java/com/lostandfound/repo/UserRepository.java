@@ -1,6 +1,7 @@
 package com.lostandfound.repo;
 
 import com.lostandfound.model.User;
+import com.lostandfound.model.UserPublic;
 
 import java.util.List;
 
@@ -30,7 +31,14 @@ public interface UserRepository {
 
     /**
      * Finds all the registered users
-     * @return a list containing all User records; returns an empty list if no users are found
+     * @return a list containing all User records without the password field: {@link UserPublic};
+     * returns an empty list otherwise
      */
-    List<User> findAll();
+    List<UserPublic> findAll();
+
+    /**
+     * Deletes a user entry in the system
+     * @param username
+     */
+    void delete(String username);
 }
