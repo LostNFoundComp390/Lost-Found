@@ -13,7 +13,26 @@ public class DatabaseInitializer {
             addMockUsers(conn);
             addMockPosts(conn);
         }
+    }
 
+    private static void testUpdateRow(Connection conn) {
+        String sql = """
+            
+            INSERT INTO Users (role, username, password, email)\s
+            VALUES ('User', 'Marc', 'asdfcvbn', 'a@b.c')
+            ON CONFLICT(username)
+            DO UPDATE SET
+                role = excluded.role,
+                password = excluded.password,
+                email = excluded.email;
+            """;
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static void createUserTable(Connection conn) {

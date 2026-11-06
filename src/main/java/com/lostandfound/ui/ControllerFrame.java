@@ -1,9 +1,8 @@
 package com.lostandfound.ui;
 
 
-import com.lostandfound.auth.UserAuthenticator;
 import com.lostandfound.model.Post;
-import com.lostandfound.services.AuthService;
+import com.lostandfound.services.UserService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,7 +15,7 @@ public class ControllerFrame extends JFrame{
     private CardLayout cardLayout;
     private JPanel mainPanel;
 
-    public ControllerFrame(AuthService authService, List<Post> posts) throws IOException{
+    public ControllerFrame(UserService userService, List<Post> posts) throws IOException{
         // Initialization
         cardLayout = new CardLayout();
         mainPanel = new JPanel((cardLayout));
@@ -28,7 +27,7 @@ public class ControllerFrame extends JFrame{
 
         // Passing this instance of the controller frame to the login class so they may talk to each other
         // This initializes an instance of the login screen
-        LoginUI loginPanel = new LoginUI(this, authService);
+        LoginUI loginPanel = new LoginUI(this, userService);
         BrowseListings browsingPanel = new BrowseListings(this, posts);
 
         // Add enter key support
