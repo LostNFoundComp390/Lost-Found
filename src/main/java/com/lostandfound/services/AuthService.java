@@ -31,6 +31,8 @@ public class AuthService {
     public User login(String username, String password) {
         boolean verified = false;
 
+        if(username.isEmpty() || password.isEmpty()){return null;}
+        
         User user = repo.findByUsername(username);
         if (user != null) {
 

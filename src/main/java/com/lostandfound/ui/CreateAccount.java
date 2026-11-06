@@ -38,54 +38,55 @@ public class CreateAccount extends JFrame implements ActionListener {
 
 
         enterUsername.setBounds(350,25,300,25);
-        enterUsername.setFont(new Font("Tahoma", Font.PLAIN, 15));
+        enterUsername.setFont(new Font("Times New Roman", Font.PLAIN, 15));
 
         username.setBounds(350, 50, 300, 25);
-        username.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        username.setFont(new Font("Times New Roman", Font.PLAIN, 20));
         username.setForeground(new Color(0, 0, 0));
         username.setBackground(Color.white);
         username.setCaretColor(Color.black);
 
         enterPassword.setBounds(350,75,300,25);
-        enterPassword.setFont(new Font("Tahoma", Font.PLAIN, 15));
+        enterPassword.setFont(new Font("Times New Roman", Font.PLAIN, 15));
 
         password.setBounds(350, 100, 300, 25);
-        password.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        password.setFont(new Font("Times New Roman", Font.PLAIN, 20));
         password.setForeground(new Color(0, 0, 0));
         password.setBackground(Color.white);
         password.setCaretColor(Color.black);
 
         reenterPassword.setBounds(350,125,300,25);
-        reenterPassword.setFont(new Font("Tahoma", Font.PLAIN, 15));
+        reenterPassword.setFont(new Font("Times New Roman", Font.PLAIN, 15));
 
         reenteredPassword.setBounds(350, 150, 300, 25);
-        reenteredPassword.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        reenteredPassword.setFont(new Font("Times New Roman", Font.PLAIN, 20));
         reenteredPassword.setForeground(new Color(0, 0, 0));
         reenteredPassword.setBackground(Color.white);
         reenteredPassword.setCaretColor(Color.black);
 
         enterEmail.setBounds(350,175,300,25);
-        enterEmail.setFont(new Font("Tahoma", Font.PLAIN, 15));
+        enterEmail.setFont(new Font("Times New Roman", Font.PLAIN, 15));
+
         email.setBounds(350, 200, 300, 25);
-        email.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        email.setFont(new Font("Times New Roman", Font.PLAIN, 20));
         email.setForeground(new Color(0, 0, 0));
         email.setBackground(Color.white);
         email.setCaretColor(Color.black);
 
         enterFirstName.setBounds(350,225,300,25);
-        enterFirstName.setFont(new Font("Tahoma", Font.PLAIN, 15));
+        enterFirstName.setFont(new Font("Times New Roman", Font.PLAIN, 15));
 
         firstName.setBounds(350, 250, 300, 25);
-        firstName.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        firstName.setFont(new Font("Times New Roman", Font.PLAIN, 20));
         firstName.setForeground(new Color(0, 0, 0));
         firstName.setBackground(Color.white);
         firstName.setCaretColor(Color.black);
 
         enterLastName.setBounds(350,275,300,25);
-        enterLastName.setFont(new Font("Tahoma", Font.PLAIN, 15));
+        enterLastName.setFont(new Font("Times New Roman", Font.PLAIN, 15));
 
         lastName.setBounds(350, 300, 300, 25);
-        lastName.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        lastName.setFont(new Font("Times New Roman", Font.PLAIN, 20));
         lastName.setForeground(new Color(0, 0, 0));
         lastName.setBackground(Color.white);
         lastName.setCaretColor(Color.black);
