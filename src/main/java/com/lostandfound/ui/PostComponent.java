@@ -24,6 +24,12 @@ public class PostComponent extends JPanel {
     }
 
     private void buildComponent(){
+        JLabel nameLabel = new JLabel(post.getName());
+        JLabel locationLabel = new JLabel(post.getLocation());
+        JLabel categoryLabel = new JLabel(post.getCategory());
+        JLabel postedDate = new JLabel((post.getPostedString()));
+        JLabel expirationDate = new JLabel((post.getStringExpiration()));
+
         setLayout(new GridBagLayout());
 //        setBackground(Color.WHITE);
 
@@ -32,7 +38,7 @@ public class PostComponent extends JPanel {
                 BorderFactory.createLineBorder(Color.BLACK),
                 BorderFactory.createEmptyBorder(10,10,10,10)));
 
-        // --- MULTIPLE IMAGES CONTAINER ---
+        // Container for images
         JPanel imagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         imagePanel.setOpaque(false);
 
@@ -58,9 +64,6 @@ public class PostComponent extends JPanel {
         // Add the image panel at top left (column 0, row 0)
         add(imagePanel, constraints(0, 0, 1, 0, GridBagConstraints.NONE, GridBagConstraints.LINE_START));
 
-        JLabel nameLabel = new JLabel(post.getName());
-        JLabel locationLabel = new JLabel(post.getLocation());
-        JLabel categoryLabel = new JLabel(post.getCategory());
 
         // The description area setup
         descriptionArea.setEditable(false);
@@ -72,7 +75,8 @@ public class PostComponent extends JPanel {
         descriptionArea.setText(shorten(description, previewLength));
 
         // assign fonts
-        nameLabel.setFont(myFont.deriveFont(Font.BOLD, 16f));
+        categoryLabel.setFont(myFont);
+        nameLabel.setFont(myFont.deriveFont(Font.BOLD, 20f));
         locationLabel.setFont(myFont);
         descriptionArea.setFont(myFont);
         more.setFont(myFont);

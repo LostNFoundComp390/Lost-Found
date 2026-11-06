@@ -1,19 +1,23 @@
 package com.lostandfound.model;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 public class Post {
     // Initialization
     private String status;
-    private String dateOfListing;
+    private LocalDate dateOfListing;
     private String desc;
     private String category;
     private String name;
-    private String expirationDate;
+    private LocalDate expirationDate;
     private int userID;
     private long productID;
     private String photo;
     private String valueStatus;
     private String location;
+    private final DateTimeFormatter datePattern = DateTimeFormatter.ofPattern("yyyy-dd-MM");
+
 
     // Implicit Constructor
     public Post(){
@@ -33,11 +37,11 @@ public class Post {
     // Explicit Constructor
     public Post(String status, String dateOfListing, String desc, String category, String name, String expirationDate, int userID, String photo,String valueStatus, String location){
         this.status = status;
-        this.dateOfListing = dateOfListing;
+        this.dateOfListing = LocalDate.parse(dateOfListing,datePattern);
         this.desc = desc;
         this.category = category;
         this.name = name;
-        this.expirationDate = expirationDate;
+        this.expirationDate = LocalDate.parse(expirationDate, datePattern);
         this.userID = userID;
         this.photo=photo;
         this.valueStatus = valueStatus;
@@ -48,11 +52,11 @@ public class Post {
     private Post(Map<String, Object> row){
        // this.status = String)row.get("status"));
         this.status = (String) row.get("Status");
-        this.dateOfListing = (String) row.get("DateOfListing");
+        this.dateOfListing = LocalDate.parse ((String) row.get("DateOfListing"), inputString);
         this.desc = (String) row.get("Description");
         this.category = (String) row.get("Category");
         this.name = (String) row.get("ProductName");
-        this.expirationDate = (String) row.get("ExpirationDate");
+        this.expirationDate = LocalDate.parse ((String) row.get("ExpirationDate"), inputString);
         this.userID = (Integer) row.get("UserID");
         this.productID = (Integer) row.get("ProductID");
         this.photo= (String) row.get("Photo");
@@ -95,8 +99,11 @@ public class Post {
     public String getStatus(){
         return status;
     }
-    public String getDateOfListing(){
+    public LocalDate getDateOfListing(){
         return dateOfListing;
+    }
+    public String getPostedString(){
+        return dateOfListing.format(datePattern);
     }
     public String getDesc(){
         return desc;
@@ -107,8 +114,11 @@ public class Post {
     public String getName(){
         return name;
     }
-    public String getExpirationDate(){
+    public LocalDate getExpirationDate(){
         return expirationDate;
+    }
+    public String getStringExpiration(){
+        return expirationDate.format(datePattern);
     }
     public int getUserID(){
         return userID;
@@ -130,9 +140,7 @@ public class Post {
     public void setStatus(String status){
         this.status = status;
     }
-    public void setDateOfListing(String date){
-        this.dateOfListing = date;
-    }
+    public void setDateOfListing(String date){this.dateOfListing = LocalDate.parse(date,inputString);}
     public void setDesc(String desc){
         this.desc = desc;
     }
@@ -143,7 +151,7 @@ public class Post {
         this.name = name;
     }
     public void setExpirationDate(String date){
-        this.expirationDate = date;
+        this.expirationDate = LocalDate.parse(date,inputString);
     }
     public void setUserID(int ID){
         this.userID = ID;
