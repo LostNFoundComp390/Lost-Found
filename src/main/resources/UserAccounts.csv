@@ -1,9 +1,9 @@
-Role,Username,Password,Email
-Admin,admin,password1234,admin@campus.edu
-User,michael,dontleavemehere,michael@campus.edu
-Admin,DMFAdmin,DanaMohlerFaria1234,dmf_admin@campus.edu
-Admin,Alex,BlueSky2026,alex_admin@campus.edu
-User,Jordan,coffeeandcode,jordan@campus.edu
-User,Taylor,SunnyDay123,taylor@campus.edu
-Admin,Sam,CampusAdmin1,sam_admin@campus.edu
-User,Casey,letmeinplease,casey@campus.edu
+UserID, Role,Username,Password,Email
+1,Admin,admin,password1234,admin@campus.edu
+2,User,michael,dontleavemehere,michael@campus.edu
+3,Admin,DMFAdmin,DanaMohlerFaria1234,dmf_admin@campus.edu
+4,Admin,Alex,BlueSky2026,alex_admin@campus.edu
+5,User,Jordan,coffeeandcode,jordan@campus.edu
+6,User,Taylor,SunnyDay123,taylor@campus.edu
+7,Admin,Sam,CampusAdmin1,sam_admin@campus.edu
+8,User,Casey,letmeinplease,casey@campus.edu

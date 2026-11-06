@@ -35,10 +35,23 @@ public class DbUserRepository implements UserRepository {
     }
 
     public User findByUsername(String username) {
-        String sql = """
-            """;
-        // TODO: return user record
-        return null;
+        String sql = "SELECT role, username, password, email FROM Users WHERE username = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                return User.of(
+                    rs.getString("role"),
+                    rs.getString("username"),
+                    rs.getString("password"),
+                    rs.getString("email")
+                );
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

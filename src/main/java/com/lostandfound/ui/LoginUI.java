@@ -6,6 +6,7 @@ package com.lostandfound.ui; /**
 
 import com.lostandfound.auth.UserAuthenticator;
 import com.lostandfound.model.User;
+import com.lostandfound.ui.CreateAccount;
 import com.lostandfound.services.AuthService;
 
 import javax.swing.*;
@@ -14,8 +15,8 @@ import java.awt.*;
 
 public class LoginUI extends JPanel implements ActionListener {
     private UserAuthenticator userAuthenticator;
-    private AuthService authService;
     private ControllerFrame controller;
+    private AuthService authService;
     private JButton loginButton;
     private JLabel usernameLabel;
     private JLabel passwordLabel;
@@ -23,9 +24,9 @@ public class LoginUI extends JPanel implements ActionListener {
     private JLabel titleLabel;
     private JTextField usernameField;
     private JPasswordField passwordField;
+    private JButton createAccountButton;
 
-    public LoginUI(ControllerFrame controller, AuthService authService) {
-        this.userAuthenticator = userAuthenticator;
+    public LoginUI(ControllerFrame controller, AuthService authService ) {
         this.authService = authService;
         this.controller = controller;
         buildPanel();
@@ -73,6 +74,9 @@ public class LoginUI extends JPanel implements ActionListener {
         loginButton = new JButton("Log In");
         loginButton.addActionListener(this);
 
+        createAccountButton = new JButton("Create Account");
+        createAccountButton.addActionListener(this);
+
         // Start with a blank label that is visible but the bg is not opaque so the user can't see it
         // It still reserves space so that the window wont resize when the banner appears and disappears
         feedbackLabel = new JLabel(" ", SwingConstants.CENTER);
@@ -82,6 +86,7 @@ public class LoginUI extends JPanel implements ActionListener {
         // Title, login button, and feedback label span both columns.
         add(titleLabel, constraints(0, 0, 2, GridBagConstraints.NONE, 0, GridBagConstraints.CENTER));
         add(loginButton, constraints(0, 3, 2, GridBagConstraints.NONE, 0, GridBagConstraints.CENTER));
+        add(createAccountButton, constraints(0, 5, 2, GridBagConstraints.NONE, 0, GridBagConstraints.CENTER));
         add(feedbackLabel, constraints(0, 4, 2, GridBagConstraints.HORIZONTAL, 1, GridBagConstraints.CENTER));
 
         // The text fields consumes any extra horizontal space in their row
@@ -98,6 +103,13 @@ public class LoginUI extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+
+        if (e.getSource() == createAccountButton){//Opens the Create Account page when the Create Account Button is Pushed
+            new CreateAccount(controller);//passes the controller so CreateAccount can bring back the Login window
+            controller.dispose();//closes Login window
+            return;
+        }
+
         String username = usernameField.getText();
 
         // grab the password. But since it's swings password field it returns as an array of chars
@@ -106,7 +118,7 @@ public class LoginUI extends JPanel implements ActionListener {
 
         // Authenticate users regardless of the data origin: file or database
         User user = authService.login(username, typedPassword);
-        if (user != null) {
+        if (user != null){
             // Display a success window
             feedbackLabel.setText("Login successful! :)");
             feedbackLabel.setBackground(Color.GREEN);
@@ -130,7 +142,6 @@ public class LoginUI extends JPanel implements ActionListener {
 
 
         }
-
         // overwrite sensitive data
         typedPassword = "";
     }

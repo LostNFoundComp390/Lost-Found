@@ -24,44 +24,62 @@ public class PostComponent extends JPanel {
     }
 
     private void buildComponent(){
-        // Initialization
-        JLabel nameLabel = new JLabel(post.getName());
-        JLabel locationLabel = new JLabel(post.getLocation());
-        JLabel categoryLabel = new JLabel(post.getCategory());
-
-        // Since the class itself expands JPanel, we can call JPanel methods directly
-        // to build the main panel holding all the different parts of a post card
         setLayout(new GridBagLayout());
-        setBackground(Color.WHITE);
+//        setBackground(Color.WHITE);
 
         // A compound border allows us to make an outline around the post card and add padding
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.BLACK),
                 BorderFactory.createEmptyBorder(10,10,10,10)));
 
-        // The description area var allows us to add the more button functionality
-        // But since it isnt really meant to be used as a label you have to disable
-        // all the user interaction functionality
+        // --- MULTIPLE IMAGES CONTAINER ---
+        JPanel imagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        imagePanel.setOpaque(false);
+
+        String photoPath = post.getPhoto();
+        if (photoPath != null && !photoPath.trim().isEmpty()) {
+            // Split by comma to get each image filename
+            String[] photos = photoPath.split(",");
+
+            for (String photo : photos) {
+                String cleanFileName = photo.trim();
+                java.io.File imgFile = new java.io.File("images/" + cleanFileName);
+
+                if (imgFile.exists()) {
+                    ImageIcon originalIcon = new ImageIcon(imgFile.getAbsolutePath());
+                    Image scaledImg = originalIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+
+                    JLabel imgLabel = new JLabel(new ImageIcon(scaledImg));
+                    imagePanel.add(imgLabel);
+                }
+            }
+        }
+
+        // Add the image panel at top left (column 0, row 0)
+        add(imagePanel, constraints(0, 0, 1, 0, GridBagConstraints.NONE, GridBagConstraints.LINE_START));
+
+        JLabel nameLabel = new JLabel(post.getName());
+        JLabel locationLabel = new JLabel(post.getLocation());
+        JLabel categoryLabel = new JLabel(post.getCategory());
+
+        // The description area setup
         descriptionArea.setEditable(false);
         descriptionArea.setLineWrap(true);
-        descriptionArea.setWrapStyleWord(true); // It wont wrap lines in the middle of words
+        descriptionArea.setWrapStyleWord(true);
         descriptionArea.setOpaque(false);
         descriptionArea.setBorder(BorderFactory.createEmptyBorder());
-        descriptionArea.setColumns(16); // Forces a minimum width but not a minimum length to look prettier
-        descriptionArea.setText(shorten(description, previewLength)); // preview desc
+        descriptionArea.setColumns(16);
+        descriptionArea.setText(shorten(description, previewLength));
 
-
-        // assign fonts, name is meant to be more noticeable
+        // assign fonts
         nameLabel.setFont(myFont.deriveFont(Font.BOLD, 16f));
         locationLabel.setFont(myFont);
         descriptionArea.setFont(myFont);
         more.setFont(myFont);
 
-        // assign a listener to the more button but code the functionality later
+        // assign a listener to the more button
         more.addActionListener(event -> toggleDesc());
 
-        // If Nina carries over the dynamic sizing thing from the other GUI then we can delete this
-        // In the meantime, preserve space for the button component on cards without a more button
         if(description.length() <= previewLength){
             more.setText(" ");
             more.setEnabled(false);
@@ -69,15 +87,15 @@ public class PostComponent extends JPanel {
             more.setContentAreaFilled(false);
         }
 
-        // add Name on top
+        // add Name next to images
         add(nameLabel,
-                constraints(0,0,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
+                constraints(1,0,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
         // add category next to name
         add(categoryLabel,
-                constraints(1,0,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
-        // add description below name
+                constraints(2,0,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
+        // add description below
         add(descriptionArea,
-                constraints(0,1,2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER));
+                constraints(0,1,3,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER));
         add(locationLabel,
                 constraints(0,2,1,0, GridBagConstraints.NONE, GridBagConstraints.LINE_START));
         add(more,
@@ -86,14 +104,12 @@ public class PostComponent extends JPanel {
 
     // Helper method stolen from another one of my projects
     private String shorten(String text, int maxLength){
-        // default case
         if(text.length()<=maxLength){
             return text;
         }
         return text.substring(0,maxLength) + "...";
     }
 
-    // Helper method stolen from this project somewhere else. Swapped where weightx
     private GridBagConstraints constraints(
             int column,
             int row,
@@ -103,47 +119,41 @@ public class PostComponent extends JPanel {
             int anchor
     ) {
         GridBagConstraints gbc = new GridBagConstraints();
-        // Add 5 empty pixels as padding around every component
         gbc.insets = new Insets(5, 5, 5, 5);
 
         gbc.gridx = column;
         gbc.gridy = row;
         gbc.gridwidth = width;
-        gbc.fill = fill; // determines if and where a component can expand into extra space
-        gbc.weightx = weightx; // determines how components share extra space if multiple components can expand into the same space
-        gbc.anchor = anchor; // determines component alignment within its own cell
+        gbc.fill = fill;
+        gbc.weightx = weightx;
+        gbc.anchor = anchor;
 
         return gbc;
     }
 
     private void toggleDesc(){
         setExpanded(!expanded);
-
     }
+
     public void setExpanded(Boolean expanded){
-        // Initialization
         this.expanded = expanded;
 
-
         if(expanded){
-            // Expand the desc by setting the visible description to be equal to the full desc
             descriptionArea.setText(description);
-            // rewrite the more button
             more.setText("Less...");
         }else{
-            // UnExpand the desc by setting the area to the shortened version
             descriptionArea.setText(shorten(description,previewLength));
-            // rewrite the more button
             more.setText("More...");
         }
 
-        // regenerate the component
         revalidate();
         repaint();
     }
+
     // Test display
+
     public static void test(){
-        // Singular test post (can be added to all our data later)
+        // Singular test post
         Post testPost = Post.of(
                 "Unclaimed",
                 "2026-09-28",
@@ -151,8 +161,7 @@ public class PostComponent extends JPanel {
                 "Accessories",
                 "Water Bottle",
                 "2026-10-28",
-                "DMFAdmin",
-                101,
+                1,
                 "hydroflask.jpg",
                 "Standard",
                 "DMF"
@@ -175,10 +184,9 @@ public class PostComponent extends JPanel {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
-
-    // Test main
-    public static void main(String[] args) {
-        // Invoke later from Oracle
-       // SwingUtilities.invokeLater(PostComponent::test);
-     }
+  
+//    Test main
+   public static void main(String[] args) {
+       SwingUtilities.invokeLater(PostComponent::test);
+   }
 }

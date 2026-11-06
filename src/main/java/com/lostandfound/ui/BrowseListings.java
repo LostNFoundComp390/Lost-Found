@@ -46,7 +46,7 @@ public class BrowseListings extends JPanel {
         bagsButton = new JButton("Bags");
         allButton = new JButton("All");
 
-
+        allButton = new JButton("All");
         searchPanel = new JPanel(new GridLayout(5, 1, 10, 10));
 
 
@@ -55,7 +55,6 @@ public class BrowseListings extends JPanel {
         listModel.add(clothingsButton, constraints(0, 2, 1, 0, GridBagConstraints.NONE, GridBagConstraints.LINE_START));
         listModel.add(bagsButton, constraints(0, 3, 1, 0, GridBagConstraints.NONE, GridBagConstraints.LINE_START));
         listModel.add(allButton, constraints(0, 4, 1, 0, GridBagConstraints.NONE, GridBagConstraints.LINE_START));
-
 
         // Action Listener to switch panels
         logout.addActionListener(event -> {
@@ -122,16 +121,17 @@ public class BrowseListings extends JPanel {
     }
 
     private void filterByCategory(String category) {
+        if (category.equalsIgnoreCase("All")) {
+            setPosts(allPosts);
+            return;
+        }
+
         List<Post> filteredPosts = new ArrayList<>();
 
-        if (category.equals("All")){
-            filteredPosts = allPosts;
-            setPosts(filteredPosts);
-        }else {
-            for (Post post : allPosts) {
-                if (post.getCategory().equals(category)) {
-                    filteredPosts.add(post);
-                }
+        for (Post post : allPosts) {
+            if (post.getCategory() != null
+                    && post.getCategory().equalsIgnoreCase(category)) {
+                filteredPosts.add(post);
             }
         }
         setPosts(filteredPosts);
@@ -184,3 +184,4 @@ public class BrowseListings extends JPanel {
         return gbc;
     }
 }
+

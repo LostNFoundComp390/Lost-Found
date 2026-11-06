@@ -20,21 +20,29 @@ public class AuthService {
        this.repo = repo;
     }
 
+    /**
+     * Verifies the user logic credential is valid by checking
+     * that the username exists, and that the plain text password
+     * will match the hashed password stored when hashed.
+     * @param username
+     * @param password
+     * @return A {@link User} if credentials match, else {@code null}
+     */
     public User login(String username, String password) {
         boolean verified = false;
 
-        if (repo.exists(username)) {
+        User user = repo.findByUsername(username);
+        if (user != null) {
 
-            Hash hash = Password.hash(password).addRandomSalt().withArgon2();
-            String hashFromDb = repo.findByUsername(username).getPassword();
-
-            verified = Password.check(hash.getResult(), hashFromDb).withArgon2();
+            // TODO: needs to return the hashpassword in db, not user object password
+            String hashFromDb = user.getPassword();
+            verified = Password.check(password, hashFromDb).withBcrypt();
         }
 
         return verified ? repo.findByUsername(username) : null;
     }
 
-    void register(String username, String password){
+    void register(String role, String username, String password, String email){
 
         //TODO: register new users with repo.save(newUser);
     }
