@@ -16,7 +16,7 @@ public class Post {
     private String photo;
     private String valueStatus;
     private String location;
-    private final DateTimeFormatter datePattern = DateTimeFormatter.ofPattern("yyyy-dd-MM");
+    private final DateTimeFormatter datePattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
     // Implicit Constructor
@@ -52,11 +52,11 @@ public class Post {
     private Post(Map<String, Object> row){
        // this.status = String)row.get("status"));
         this.status = (String) row.get("Status");
-        this.dateOfListing = LocalDate.parse ((String) row.get("DateOfListing"), inputString);
+        this.dateOfListing = LocalDate.parse ((String) row.get("DateOfListing"), datePattern);
         this.desc = (String) row.get("Description");
         this.category = (String) row.get("Category");
         this.name = (String) row.get("ProductName");
-        this.expirationDate = LocalDate.parse ((String) row.get("ExpirationDate"), inputString);
+        this.expirationDate = LocalDate.parse ((String) row.get("ExpirationDate"), datePattern);
         this.userID = (Integer) row.get("UserID");
         this.productID = (Integer) row.get("ProductID");
         this.photo= (String) row.get("Photo");
@@ -140,7 +140,7 @@ public class Post {
     public void setStatus(String status){
         this.status = status;
     }
-    public void setDateOfListing(String date){this.dateOfListing = LocalDate.parse(date,inputString);}
+    public void setDateOfListing(String date){this.dateOfListing = LocalDate.parse(date,datePattern);}
     public void setDesc(String desc){
         this.desc = desc;
     }
@@ -151,7 +151,7 @@ public class Post {
         this.name = name;
     }
     public void setExpirationDate(String date){
-        this.expirationDate = LocalDate.parse(date,inputString);
+        this.expirationDate = LocalDate.parse(date,datePattern);
     }
     public void setUserID(int ID){
         this.userID = ID;
