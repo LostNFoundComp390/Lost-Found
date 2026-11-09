@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BrowseListings extends JPanel {
-    private final ControllerFrame controller;
+    private final ControllerFrame controls;
     private final List<Post> allPosts;
     private final JPanel searchPanel;
 
@@ -42,7 +42,7 @@ public class BrowseListings extends JPanel {
         // Initialization
         JLabel title = new JLabel("Campus Lost & Found");
 
-        this.controller = controller;
+        this.controls = controller;
         this.allPosts = posts;
 
         headerPanel = new JPanel();
@@ -75,7 +75,7 @@ public class BrowseListings extends JPanel {
 
         // Action Listener to switch panels
         logout.addActionListener(event -> {
-            controller.showLogin();
+            controls.showLogin();
         });
 
         // action Listener for listing categories
