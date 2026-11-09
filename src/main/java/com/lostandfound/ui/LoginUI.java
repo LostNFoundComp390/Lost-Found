@@ -123,14 +123,17 @@ public class LoginUI extends JPanel implements ActionListener {
             feedbackLabel.setText("Login successful! :)");
             feedbackLabel.setBackground(Color.GREEN);
             feedbackLabel.setOpaque(true);
-
+            
             usernameField.setText("");
             passwordField.setText("");
-            feedbackTimer(1000);
 
             // this is where my BrowseListings page windows should open up
-            // Switch to the right page
-            controller.showBrowsing();
+            // Check if the user is an admin and inform browseListing of said status
+            if(user.getRole().equalsIgnoreCase("admin")){
+                controller.showBrowsing(true);
+            }else{
+                controller.showBrowsing(false);
+            }
 
         } else {
             // Alert the user of their mistake

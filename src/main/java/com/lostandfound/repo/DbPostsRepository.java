@@ -28,16 +28,17 @@ public class DbPostsRepository implements PostRepository{
                (?,?,?,?,?,?,?,?,?,?);
                 """;
         try (Connection conn = db.getConnection()){
+
+
             // Compile
             PreparedStatement ps = conn.prepareStatement(sql);
             // Assign vars
-
             ps.setString(1,post.getStatus());
-            ps.setString(2, post.getDateOfListing());
+            ps.setString(2, post.getPostedString());
             ps.setString(3, post.getDesc());
             ps.setString(4,post.getCategory());
             ps.setString(5,post.getName());
-            ps.setString(6, post.getExpirationDate());
+            ps.setString(6, post.getStringExpiration());
             ps.setInt(7, post.getUserID());
             ps.setString(8,post.getPhoto());
             ps.setString(9,post.getValueStatus());

@@ -45,12 +45,15 @@ public class DbUserRepository implements UserRepository {
 
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
+                if(rs.next()){
                 return User.of(
                     rs.getString("role"),
                     rs.getString("username"),
                     rs.getString("password"),
                     rs.getString("email")
-                );
+                );}else{
+                    return null;
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
