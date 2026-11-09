@@ -119,11 +119,7 @@ public class LoginUI extends JPanel implements ActionListener {
         // Authenticate users regardless of the data origin: file or database
         User user = userService.login(username, typedPassword);
         if (user != null) {
-            // Display a success window
-            feedbackLabel.setText("Login successful! :)");
-            feedbackLabel.setBackground(Color.GREEN);
-            feedbackLabel.setOpaque(true);
-            
+            // reset the fields for when the user logs out
             usernameField.setText("");
             passwordField.setText("");
 
