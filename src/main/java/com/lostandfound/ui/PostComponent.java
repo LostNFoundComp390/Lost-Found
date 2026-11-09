@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 public class PostComponent extends JPanel {
     // Main components
     private final int previewLength = 30;
-    private  Font myFont = new Font("Tahoma", Font.PLAIN, 20);
+    private  Font myFont = new Font("Tahoma", Font.PLAIN, 15);
     private Post post;
     private final JTextArea descriptionArea = new JTextArea();
     private final JButton more = new JButton("More...");
@@ -27,8 +27,10 @@ public class PostComponent extends JPanel {
         JLabel nameLabel = new JLabel(post.getName());
         JLabel locationLabel = new JLabel(post.getLocation());
         JLabel categoryLabel = new JLabel(post.getCategory());
-        JLabel postedDate = new JLabel((post.getPostedString()));
-        JLabel expirationDate = new JLabel((post.getStringExpiration()));
+        JLabel postedDate = new JLabel(("Found: "+ post.getPostedString()));
+        JLabel expirationDate = new JLabel(("Expires: " + post.getStringExpiration()));
+        JPanel descriptionButtonContainer = new JPanel(new GridBagLayout());
+        JPanel headerContainer = new JPanel(new GridBagLayout());
 
         setLayout(new GridBagLayout());
 //        setBackground(Color.WHITE);
@@ -61,8 +63,20 @@ public class PostComponent extends JPanel {
             }
         }
 
+        // contain the description and the button
+        // Put the button below the description
+        descriptionButtonContainer.add(categoryLabel, constraints(0,0,1,1,GridBagConstraints.NONE, GridBagConstraints.LINE_START));
+        descriptionButtonContainer.add(descriptionArea, constraints(0,1,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.LINE_START));
+        descriptionButtonContainer.add(more, constraints(0,2,1,1,GridBagConstraints.NONE, GridBagConstraints.LINE_START));
+
         // Add the image panel at top left (column 0, row 0)
-        add(imagePanel, constraints(0, 0, 1, 0, GridBagConstraints.NONE, GridBagConstraints.LINE_START));
+        add(imagePanel, constraints(0, 2, 1, 0, GridBagConstraints.NONE, GridBagConstraints.LINE_START));
+
+        // contain the object name and the category next to each other
+        headerContainer.add(nameLabel, constraints(0,0,1,0,GridBagConstraints.NONE, GridBagConstraints.LINE_START));
+        // headerContainer.add(postedDate, constraints(1,0,1,1,GridBagConstraints.NONE, GridBagConstraints.LINE_START));
+        headerContainer.add(expirationDate, constraints(2,0,1,1,GridBagConstraints.HORIZONTAL, GridBagConstraints.LINE_START));
+        // headerContainer.add(categoryLabel, constraints(1,0,1,1,GridBagConstraints.NONE, GridBagConstraints.LINE_START));
 
 
         // The description area setup
@@ -80,6 +94,8 @@ public class PostComponent extends JPanel {
         locationLabel.setFont(myFont);
         descriptionArea.setFont(myFont);
         more.setFont(myFont);
+        expirationDate.setFont(myFont);
+        postedDate.setFont(myFont);
 
         // assign a listener to the more button
         more.addActionListener(event -> toggleDesc());
@@ -92,18 +108,23 @@ public class PostComponent extends JPanel {
         }
 
         // add Name next to images
-        add(nameLabel,
-                constraints(1,0,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
+        // add(nameLabel,
+        //        constraints(1,1,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
         // add category next to name
-        add(categoryLabel,
-                constraints(2,0,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
+        // add(categoryLabel,
+        //        constraints(2,1,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
         // add description below
-        add(descriptionArea,
-                constraints(0,1,3,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER));
-        add(locationLabel,
-                constraints(0,2,1,0, GridBagConstraints.NONE, GridBagConstraints.LINE_START));
-        add(more,
-                constraints(0,3,1,0,GridBagConstraints.NONE, GridBagConstraints.LINE_START));
+        // add(descriptionArea,
+        //        constraints(1,2,3,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.LINE_END));
+        // add(descriptionArea,
+         add(locationLabel,
+                constraints(0,3,1,0, GridBagConstraints.NONE, GridBagConstraints.LINE_START));
+        // add(more,
+        //        constraints(1,2,1,0,GridBagConstraints.NONE, GridBagConstraints.LINE_START));
+        add(headerContainer, constraints(0,0,3,1,GridBagConstraints.HORIZONTAL, GridBagConstraints.CENTER));
+        add(descriptionButtonContainer,
+                constraints(1,2,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.LINE_END));
+
     }
 
     // Helper method stolen from another one of my projects
@@ -184,7 +205,7 @@ public class PostComponent extends JPanel {
         // because there is no "main panel" which holds all the components. In the GUI the
         // main panel would be set to visible
         frame.setContentPane(container);
-        frame.setSize(450, 350);
+        frame.setSize(600, 350);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
