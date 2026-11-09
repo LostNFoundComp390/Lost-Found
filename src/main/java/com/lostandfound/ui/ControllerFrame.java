@@ -16,6 +16,7 @@ public class ControllerFrame extends JFrame{
     private CardLayout cardLayout;
     private JPanel mainPanel;
     private BrowseListings browsingPanel;
+    private LoginUI loginPanel;
 
     public ControllerFrame(UserService userService, List<Post> posts) throws IOException{
         // Initialization
@@ -30,8 +31,8 @@ public class ControllerFrame extends JFrame{
         // Passing this instance of the controller frame to the login class so they may talk to each other
         // This initializes an instance of the login screen
 
-        LoginUI loginPanel = new LoginUI(this, userService);
-        BrowseListings browsingPanel = new BrowseListings(this, posts);
+        loginPanel = new LoginUI(this, userService);
+        browsingPanel = new BrowseListings(this, posts);
 
         // Add enter key support
         getRootPane().setDefaultButton(loginPanel.getLoginButton());
