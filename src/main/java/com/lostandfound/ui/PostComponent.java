@@ -71,8 +71,9 @@ public class PostComponent extends JPanel {
         secondHeader.add(locationLabel,constraints(1,0,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.LINE_START));
 
         // prep the buttons container
-        buttonsContainer.add(more,constraints(0,0,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
-        buttonsContainer.add(claim, constraints(1,0,1,1,GridBagConstraints.HORIZONTAL, GridBagConstraints.LINE_START));
+        // claim MUST come first because some components wont have a more..
+        buttonsContainer.add(claim, constraints(0,0,1,1,GridBagConstraints.HORIZONTAL, GridBagConstraints.LINE_START));
+        buttonsContainer.add(more,constraints(1,0,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
 
         // contain the description and the button
         // Put the button below the description
