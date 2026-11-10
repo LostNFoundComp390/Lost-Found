@@ -249,7 +249,10 @@ public class BrowseListings extends JPanel {
 
         this.revalidate();
         this.repaint();
+    }
 
+    public User getUser(){
+        return this.user;
     }
 }
 
