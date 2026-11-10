@@ -5,6 +5,7 @@ public class User {
     private final String username;
     private final String password;
     private final String email;
+    private boolean isAdmin;
 
     private User(
         String role,
@@ -16,6 +17,12 @@ public class User {
         this.username = username;
         this.password = password;
         this.email = email;
+
+        if(this.role.equalsIgnoreCase("admin")){
+            isAdmin = true;
+        }else{
+            isAdmin = false;
+        }
     }
 
     // Static factory method
@@ -52,4 +59,5 @@ public class User {
         public String getRole () {
             return role;
         }
+        public Boolean getAdmin(){return isAdmin;}
     }
