@@ -106,7 +106,7 @@ public class LoginUI extends JPanel implements ActionListener {
 
         if (e.getSource() == createAccountButton){//Opens the Create Account page when the Create Account Button is Pushed
             new CreateAccount(controller);//passes the controller so CreateAccount can bring back the Login window
-            controller.dispose();//closes Login window
+            controller.setVisible(false);//closes Login window
             return;
         }
 
@@ -124,12 +124,16 @@ public class LoginUI extends JPanel implements ActionListener {
             passwordField.setText("");
 
             // this is where my BrowseListings page windows should open up
-            // Check if the user is an admin and inform browseListing of said status
+            // send the current user through
+            controller.showBrowsing(user);
+
+
+           /* // Check if the user is an admin and inform browseListing of said status
             if(user.getRole().equalsIgnoreCase("admin")){
-                controller.showBrowsing(true);
+                controller.showBrowsing(user);
             }else{
                 controller.showBrowsing(false);
-            }
+            }*/
 
         } else {
             // Alert the user of their mistake
@@ -142,7 +146,6 @@ public class LoginUI extends JPanel implements ActionListener {
 
         }
         // overwrite sensitive data
-        typedPassword = "";
     }
 
     /**
