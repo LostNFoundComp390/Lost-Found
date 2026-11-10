@@ -39,7 +39,7 @@ public class DbPostsRepository implements PostRepository{
             ps.setString(4,post.getCategory());
             ps.setString(5,post.getName());
             ps.setString(6, post.getStringExpiration());
-            ps.setInt(7, post.getUserID());
+            ps.setInt(7, post.getOwnerID());
             ps.setString(8,post.getPhoto());
             ps.setString(9,post.getValueStatus());
             ps.setString(10,post.getLocation());
@@ -167,7 +167,8 @@ public class DbPostsRepository implements PostRepository{
         post.setCategory(rs.getString("category"));
         post.setName(rs.getString("product_name"));
         post.setExpirationDate(rs.getString("expiration_date"));
-        post.setUserID(rs.getInt("user_id"));
+        post.setownerID(rs.getInt("user_id"));
+        post.setClaimerID(rs.getInt("claimer_id"));
         post.setProductID(rs.getInt("listing_id"));
         post.setPhoto(rs.getString("photo"));
         post.setValueStatus(rs.getString("value_status"));
@@ -177,4 +178,31 @@ public class DbPostsRepository implements PostRepository{
         return post;
     }
 
-}
+    public void updateClaim(Post post) {
+        String sql = "UPDATE Listings SET status = ?, claimer_id = ? WHERE listing_id = ?";
+
+        // Try to connect to the db
+        try (Connection conn = db.getConnection();
+             // compile SQL
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            // assign values
+            ps.setString(1, post.getStatus());
+
+            if (post.getClaimerID() > 0) {
+                // assign the user
+                ps.setInt(2, post.getClaimerID());
+            } else {
+                // or set null if there is no claimant somehow
+                ps.setNull(2, Types.INTEGER);
+            }
+
+            ps.setLong(3, post.getProductID());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    }

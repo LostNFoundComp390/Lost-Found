@@ -35,7 +35,7 @@ public class Main {
                 List<Post> posts = postRepo.findAll();
 
                 try {
-                    new ControllerFrame(userService, posts);
+                    new ControllerFrame(userService, posts, (DbPostsRepository) postRepo);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

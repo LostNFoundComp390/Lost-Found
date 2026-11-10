@@ -3,6 +3,7 @@ package com.lostandfound.ui;
 // Browse listings page where users can browse their lost and found items
 
 import com.lostandfound.model.Post;
+import com.lostandfound.model.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BrowseListings extends JPanel {
-    private final ControllerFrame controller;
+    private final ControllerFrame controls;
     private final List<Post> allPosts;
     private final JPanel searchPanel;
 
@@ -32,6 +33,8 @@ public class BrowseListings extends JPanel {
     private JButton allButton;
     private JButton createPost;
 
+    private User user;
+
 
     // Turning BrowseListings into a panel to work with controller Frame
     public BrowseListings(ControllerFrame controller, List<Post> posts) {
@@ -42,7 +45,7 @@ public class BrowseListings extends JPanel {
         // Initialization
         JLabel title = new JLabel("Campus Lost & Found");
 
-        this.controller = controller;
+        this.controls = controller;
         this.allPosts = posts;
 
         headerPanel = new JPanel();
@@ -75,7 +78,7 @@ public class BrowseListings extends JPanel {
 
         // Action Listener to switch panels
         logout.addActionListener(event -> {
-            controller.showLogin();
+            controls.showLogin();
         });
 
         // action Listener for listing categories
@@ -187,7 +190,7 @@ public class BrowseListings extends JPanel {
         } else {
             for (Post post : posts) {
                 // add all the new components. Constraints set on listing earlier forces organization
-                listingsPanel.add(new PostComponent(post));
+                listingsPanel.add(new PostComponent(post, controls));
             }
         }
 
@@ -222,7 +225,7 @@ public class BrowseListings extends JPanel {
     }
 
     // Helper method to add the + button if the user is an admin
-    public void setAdmin(boolean isAdmin){
+ /*   public void setAdmin(boolean isAdmin){
         // avoid adding it twice if somehow its still there
         addPostPanel.setVisible(isAdmin);
 
@@ -232,6 +235,24 @@ public class BrowseListings extends JPanel {
 
         this.revalidate();
         this.repaint();
+    }*/
+
+    public void setUser(User user){
+        // assign the current user
+        this.user = user;
+
+        // build or rebuild depending on the user role
+        addPostPanel.setVisible(user.getAdmin());
+
+        headerPanel.revalidate();
+        headerPanel.repaint();
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    public User getUser(){
+        return this.user;
     }
 }
 

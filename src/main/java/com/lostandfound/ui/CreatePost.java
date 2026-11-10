@@ -7,9 +7,6 @@ import java.awt.*;
 
 public class CreatePost extends JPanel{
     private  Font myFont = new Font("Tahoma", Font.PLAIN, 20);
-//    private JTextField
-
-
 
     public static void test(){
         // Initialization

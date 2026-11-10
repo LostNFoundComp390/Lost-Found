@@ -11,12 +11,13 @@ public class Post {
     private String category;
     private String name;
     private LocalDate expirationDate;
-    private int userID;
+    private int ownerID;
+    private int claimerID;
     private long productID;
     private String photo;
     private String valueStatus;
     private String location;
-    private final DateTimeFormatter datePattern = DateTimeFormatter.ofPattern("yyyy-dd-MM");
+    private final DateTimeFormatter datePattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
     // Implicit Constructor
@@ -27,37 +28,56 @@ public class Post {
         this.category = null;
         this.name = null;
         this.expirationDate = null;
-        this.userID = 0;
+        this.ownerID = 0;
+        this.claimerID =0;
         this.productID = 0;
         this.photo= null;
         this.valueStatus = null;
         this.location = null;
     }
 
-    // Explicit Constructor
-    public Post(String status, String dateOfListing, String desc, String category, String name, String expirationDate, int userID, String photo,String valueStatus, String location){
+    // Explicit Constructor w/o a claimant
+    public Post(String status, String dateOfListing, String desc, String category, String name, String expirationDate, int ownerID, String photo,String valueStatus, String location){
         this.status = status;
         this.dateOfListing = LocalDate.parse(dateOfListing,datePattern);
         this.desc = desc;
         this.category = category;
         this.name = name;
         this.expirationDate = LocalDate.parse(expirationDate, datePattern);
-        this.userID = userID;
+        this.ownerID = ownerID;
+        this.claimerID = 0;
         this.photo=photo;
         this.valueStatus = valueStatus;
         this.location = location;
     }
 
+    // Explicit Constructor w/ a claimant
+    public Post(String status, String dateOfListing, String desc, String category, String name, String expirationDate, int ownerID, int claimerID, String photo,String valueStatus, String location){
+        this.status = status;
+        this.dateOfListing = LocalDate.parse(dateOfListing,datePattern);
+        this.desc = desc;
+        this.category = category;
+        this.name = name;
+        this.expirationDate = LocalDate.parse(expirationDate, datePattern);
+        this.ownerID = ownerID;
+        this.claimerID = claimerID;
+        this.photo=photo;
+        this.valueStatus = valueStatus;
+        this.location = location;
+    }
+
+
     // Constructor to handle the listed data
     private Post(Map<String, Object> row){
        // this.status = String)row.get("status"));
         this.status = (String) row.get("Status");
-        this.dateOfListing = LocalDate.parse ((String) row.get("DateOfListing"), inputString);
+        this.dateOfListing = LocalDate.parse ((String) row.get("DateOfListing"), datePattern);
         this.desc = (String) row.get("Description");
         this.category = (String) row.get("Category");
         this.name = (String) row.get("ProductName");
-        this.expirationDate = LocalDate.parse ((String) row.get("ExpirationDate"), inputString);
-        this.userID = (Integer) row.get("UserID");
+        this.expirationDate = LocalDate.parse ((String) row.get("ExpirationDate"), datePattern);
+        this.ownerID = (Integer) row.get("UserID");
+        this.claimerID = (Integer) row.get("claimerID");
         this.productID = (Integer) row.get("ProductID");
         this.photo= (String) row.get("Photo");
         this.valueStatus = (String) row.get("ValueStatus");
@@ -120,9 +140,10 @@ public class Post {
     public String getStringExpiration(){
         return expirationDate.format(datePattern);
     }
-    public int getUserID(){
-        return userID;
+    public int getOwnerID(){
+        return ownerID;
     }
+    public int getClaimerID(){ return claimerID; }
     public long getProductID(){
         return productID;
     }
@@ -140,7 +161,7 @@ public class Post {
     public void setStatus(String status){
         this.status = status;
     }
-    public void setDateOfListing(String date){this.dateOfListing = LocalDate.parse(date,inputString);}
+    public void setDateOfListing(String date){this.dateOfListing = LocalDate.parse(date,datePattern);}
     public void setDesc(String desc){
         this.desc = desc;
     }
@@ -151,11 +172,12 @@ public class Post {
         this.name = name;
     }
     public void setExpirationDate(String date){
-        this.expirationDate = LocalDate.parse(date,inputString);
+        this.expirationDate = LocalDate.parse(date,datePattern);
     }
-    public void setUserID(int ID){
-        this.userID = ID;
+    public void setownerID(int ID){
+        this.ownerID = ID;
     }
+    public void setClaimerID(int ID){this.claimerID = ID;}
     public void setProductID(long ID){
         this.productID = ID;
     }
@@ -179,7 +201,7 @@ public class Post {
                 ", category='" + category + '\'' +
                 ", name='" + name + '\'' +
                 ", expirationDate='" + expirationDate + '\'' +
-                ", userID='" + userID + '\'' +
+                ", userID='" + ownerID + '\'' +
                 ", productID=" + productID +
                 ", photo='" + photo + '\'' +
                 ", valueStatus='" + valueStatus + '\'' +

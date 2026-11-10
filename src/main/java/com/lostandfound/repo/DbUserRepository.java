@@ -38,7 +38,7 @@ public class DbUserRepository implements UserRepository {
     public User findByUsername(String username) {
         if (!exists(username)) return null;
 
-        String sql = "SELECT role, username, password, email FROM Users WHERE username = ?";
+        String sql = "SELECT user_id, role, username, password, email FROM Users WHERE username = ?";
 
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -47,6 +47,7 @@ public class DbUserRepository implements UserRepository {
             try (ResultSet rs = ps.executeQuery()) {
                 if(rs.next()){
                 return User.of(
+                    rs.getInt("user_id"),
                     rs.getString("role"),
                     rs.getString("username"),
                     rs.getString("password"),
@@ -78,6 +79,7 @@ public class DbUserRepository implements UserRepository {
             ps.setString(2, user.getUsername());
             ps.setString(3, user.getPassword());
             ps.setString(4, user.getEmail());
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -115,7 +117,7 @@ public class DbUserRepository implements UserRepository {
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
-            ResultSet rs = ps.executeQuery(sql);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

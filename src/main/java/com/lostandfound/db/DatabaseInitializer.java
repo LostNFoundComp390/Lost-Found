@@ -67,7 +67,9 @@ public class DatabaseInitializer {
                 expiration_date TEXT,
                 value_status TEXT,
                 user_id INTEGER NOT NULL,
-                FOREIGN KEY(user_id) REFERENCES Users(user_id)
+                claimer_id INTEGER,
+                FOREIGN KEY(user_id) REFERENCES Users(user_id),
+                FOREIGN KEY(claimer_id) REFERENCES Users(user_id)
                 )
             """;
         try (Statement st = conn.createStatement()) {
