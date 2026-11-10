@@ -17,10 +17,13 @@ public class PostComponent extends JPanel {
     private final JButton claim = new JButton("Yours?");
     private String description;
     private boolean expanded = false;
+    private ControllerFrame control;
 
-    public PostComponent(Post post){
+    public PostComponent(Post post, ControllerFrame controller){
         this.post  = post;
         this.description = post.getDesc();
+        this.control = controller;
+
         buildComponent();
     }
 
@@ -164,7 +167,12 @@ public class PostComponent extends JPanel {
     private void toggleDesc(){
         setExpanded(!expanded);
     }
-    private void toggleClaim(){post.setStatus("claim requested");}
+    private void toggleClaim(){
+        if(control != null && control.requestClaim(this.post)){
+            claim.setText("Requested!");
+            claim.setEnabled(false);
+        }
+    }
 
     public void setExpanded(Boolean expanded){
         this.expanded = expanded;
@@ -205,7 +213,7 @@ public class PostComponent extends JPanel {
         JPanel container = new JPanel(new BorderLayout());
         container.setBorder(
                 BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        container.add(new PostComponent(testPost), BorderLayout.CENTER);
+        container.add(new PostComponent(testPost, null), BorderLayout.CENTER);
 
         // Hard coded size, location is centering, and visibility is only required here
         // because there is no "main panel" which holds all the components. In the GUI the
