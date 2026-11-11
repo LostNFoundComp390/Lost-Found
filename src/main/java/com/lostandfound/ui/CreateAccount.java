@@ -1,4 +1,6 @@
 package com.lostandfound.ui;
+import com.lostandfound.controller.ControllerFrame;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

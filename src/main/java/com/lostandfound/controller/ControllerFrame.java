@@ -1,15 +1,18 @@
-package com.lostandfound.ui;
+package com.lostandfound.controller;
 
 
 import com.lostandfound.model.Post;
 import com.lostandfound.model.User;
+import com.lostandfound.model.UserSession;
 import com.lostandfound.repo.DbPostsRepository;
+import com.lostandfound.services.PostService;
 import com.lostandfound.services.UserService;
+import com.lostandfound.ui.BrowseListings;
+import com.lostandfound.ui.LoginUI;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.util.List;
 
 public class ControllerFrame extends JFrame{
     public final String login = "LOGIN";
@@ -20,14 +23,14 @@ public class ControllerFrame extends JFrame{
     private BrowseListings browsingPanel;
     private LoginUI loginPanel;
 
-    private User user;
     private DbPostsRepository postRepo;
 
-    public ControllerFrame(UserService userService, List<Post> posts, DbPostsRepository activeRepo) throws IOException{
+    public ControllerFrame(UserService userService, PostService postService) throws IOException{
         // Initialization
         cardLayout = new CardLayout();
         mainPanel = new JPanel((cardLayout));
-        postRepo = activeRepo;
+
+        //postRepo = activeRepo;
 
         setTitle("Lost-Found");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -38,7 +41,7 @@ public class ControllerFrame extends JFrame{
         // This initializes an instance of the login screen
 
         loginPanel = new LoginUI(this, userService);
-        browsingPanel = new BrowseListings(this, posts);
+        browsingPanel = new BrowseListings(this, userService, postService);
 
         // Add enter key support
         getRootPane().setDefaultButton(loginPanel.getLoginButton());
@@ -61,29 +64,25 @@ public class ControllerFrame extends JFrame{
 
     public void showLogin(){
         // clear the user
-        this.user = null;
+        UserSession.getInstance().logout();
         // log out
         cardLayout.show(mainPanel, login);
     }
 
-    public void showBrowsing(User user){
-        // Browsing panel must know the user
-        browsingPanel.setUser(user);
-        // saved the logged in user
-        this.user=user;
-
+    public void showBrowsing(){
+        browsingPanel.updateAdminVisibility();
         // Show the screen
         cardLayout.show(mainPanel, browsing);
     }
 
-    public void setUser(User user){
-        this.user = user;
-    }
 
     public boolean requestClaim(Post post){
+
+        User user = UserSession.getInstance().getCurrentUser();
+
         // escape if there is no user...:(
         // means something went real wrong
-        if(this.user == null){
+        if(user == null){
             JOptionPane.showMessageDialog(this, "you MUST be logged in! >:(");
             return false;
         }

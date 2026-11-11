@@ -1,11 +1,10 @@
 package com.lostandfound.ui;
 
+import com.lostandfound.controller.ControllerFrame;
 import com.lostandfound.model.Post;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class PostComponent extends JPanel {
     // Main components

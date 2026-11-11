@@ -2,6 +2,7 @@ package com.lostandfound.services;
 
 import com.lostandfound.exception.UserNotFoundException;
 import com.lostandfound.model.User;
+import com.lostandfound.model.UserSession;
 import com.lostandfound.repo.UserRepository;
 import com.password4j.Password;
 
@@ -37,6 +38,7 @@ public class UserService {
 
             String hashFromDb = user.getPassword();
             verified = Password.check(password, hashFromDb).withBcrypt();
+            UserSession.getInstance().setCurrentUser(user);
         }
 
         return verified ? user : null;
@@ -75,12 +77,14 @@ public class UserService {
      * @throws IllegalArgumentException if username is empty
      */
     void delete(String username) throws UserNotFoundException {
-        if (username.isEmpty()){throw new IllegalArgumentException("Username is empty");}
+        if (username.isBlank()){throw new IllegalArgumentException("Username is empty");}
         if (!repo.exists(username)){throw new UserNotFoundException("User doesn't exist");}
 
         repo.delete(username);
 
     }
+
+
 
     private String hashPassword(String plaintext){
        return Password.hash(plaintext).withBcrypt().getResult();

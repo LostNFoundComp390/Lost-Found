@@ -123,7 +123,7 @@ public class DbPostsRepository implements PostRepository{
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        // Todo: handle not found post
+        // Todo: handle not found post in post service
         return posts;
     }
 
@@ -153,6 +153,82 @@ public class DbPostsRepository implements PostRepository{
             throw new RuntimeException(e);
         }
         return posts;
+    }
+
+    @Override
+    public List<Post> adminSearchByKeyword(String keyword) {
+        // Initialization
+        String pattern = "%" + keyword + "%";
+        String sql = """
+            SELECT *
+            FROM Listings
+            WHERE (product_name like ? OR description like ?)
+            """;
+
+
+        List<Post> posts = new ArrayList<>();
+
+        // Try to connect to the db
+        try (Connection conn = db.getConnection();
+             // Compile sql query
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            // Insert the category the user selected to sort by
+            ps.setString(1, pattern);
+            ps.setString(2, pattern);
+            // Try to actually query
+            try(ResultSet rs = ps.executeQuery()) {
+                // While there are still rows to search
+                while (rs.next()) {
+                    // Create a new post object with the helper method
+                    Post post = rowToPost(rs);
+
+                    // Add posts to the list
+                    posts.add(post);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return posts;
+
+    }
+
+    @Override
+    public List<Post> userSearchByKeyword(String keyword) {
+        // need a
+        String pattern = "%" + keyword + "%";
+        String sql = """
+            SELECT *
+            FROM Listings
+            WHERE (product_name like ? OR description like ?)
+            """;
+
+
+        List<Post> posts = new ArrayList<>();
+
+        // Try to connect to the db
+        try (Connection conn = db.getConnection();
+             // Compile sql query
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            // Insert the category the user selected to sort by
+            ps.setString(1, pattern);
+            ps.setString(2, pattern);
+            // Try to actually query
+            try(ResultSet rs = ps.executeQuery()) {
+                // While there are still rows to search
+                while (rs.next()) {
+                    // Create a new post object with the helper method
+                    Post post = rowToPost(rs);
+
+                    // Add posts to the list
+                    posts.add(post);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return posts;
+
     }
 
     // Helper method for turning rows into a Post
