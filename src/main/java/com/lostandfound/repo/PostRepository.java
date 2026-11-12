@@ -35,4 +35,7 @@ public interface PostRepository {
      */
     List<Post> searchCategory(String category);
 
+    List<Post> userSearchByKeyword(String keyword);
+    List<Post> adminSearchByKeyword(String keyword);
+
 }

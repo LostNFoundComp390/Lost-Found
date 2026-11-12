@@ -4,9 +4,8 @@ package com.lostandfound.ui; /**
  * Login screen without database functionality. Enter button doesn't work.
  */
 
-import com.lostandfound.auth.UserAuthenticator;
+import com.lostandfound.controller.ControllerFrame;
 import com.lostandfound.model.User;
-import com.lostandfound.ui.CreateAccount;
 import com.lostandfound.services.UserService;
 
 import javax.swing.*;
@@ -14,7 +13,6 @@ import java.awt.event.*;
 import java.awt.*;
 
 public class LoginUI extends JPanel implements ActionListener {
-    private UserAuthenticator userAuthenticator;
     private ControllerFrame controller;
     private UserService userService;
     private JButton loginButton;
@@ -66,8 +64,7 @@ public class LoginUI extends JPanel implements ActionListener {
         titleLabel = new JLabel("Login to Lst&Fnd!");
 
         usernameLabel = new JLabel("Username: ");
-        usernameField = new JTextField(25); // spans 15 columns wide
-
+        usernameField = new JTextField(25);
         passwordLabel = new JLabel("Password: ");
         passwordField = new JPasswordField(25);
 
@@ -124,8 +121,7 @@ public class LoginUI extends JPanel implements ActionListener {
             passwordField.setText("");
 
             // this is where my BrowseListings page windows should open up
-            // send the current user through
-            controller.showBrowsing(user);
+            controller.showBrowsing();
 
 
            /* // Check if the user is an admin and inform browseListing of said status
