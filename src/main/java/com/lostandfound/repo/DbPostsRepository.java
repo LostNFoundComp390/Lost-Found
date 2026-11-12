@@ -1,5 +1,6 @@
 package com.lostandfound.repo;
 import com.lostandfound.db.Database;
+import com.lostandfound.model.Claim;
 import com.lostandfound.model.Post;
 
 import java.sql.*;
@@ -202,6 +203,50 @@ public class DbPostsRepository implements PostRepository{
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public List<Claim> findClaims(long listingID){
+        // init return var
+        List<Claim> claims = new ArrayList<>();
+
+        // prep sql
+        String sql = """ 
+                SELECT 
+                c.claim_id,
+                c.user_id,
+                u.username,
+                c.status
+                FROM Claims c JOIN Users u ON u.user_id = c.user_id
+                WHERE c.listing_id = ?
+                """;
+        // connect to db
+        try (Connection conn = db.getConnection()){
+            // prep sql
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            // insert input var into sql
+            ps.setLong(1, listingID);
+
+            // seek results
+            try(ResultSet rs = ps.executeQuery()){
+                // while there are still rows returned
+                while(rs.next()){
+                    // create a claim object of the current row
+                    Claim claim = new Claim(
+                            rs.getLong("claim_id"),
+                            rs.getInt("user_id"),
+                            rs.getString("username"),
+                            rs.getString("status"));
+
+                    // insert claim into list
+                    claims.add(claim);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return claims;
     }
 
 }
