@@ -24,8 +24,12 @@ public class ControllerFrame extends JFrame{
     private User user;
     private DbPostsRepository postRepo;
 
+    private List<User> claimants;
+
+
     public ControllerFrame(UserService userService, List<Post> posts, DbPostsRepository activeRepo) throws IOException{
         // Initialization
+        claimants = new ArrayList<>();
         cardLayout = new CardLayout();
         mainPanel = new JPanel((cardLayout));
         postRepo = activeRepo;
@@ -83,8 +87,6 @@ public class ControllerFrame extends JFrame{
     public User getUser(){return this.user;}
 
     public boolean requestClaim(Post post){
-        List<User> claimants = new ArrayList<>();
-
         // escape if there is no user...:(
         // means something went real wrong
         if(this.user == null){
@@ -92,7 +94,7 @@ public class ControllerFrame extends JFrame{
             return false;
         }
 
-        // make sure ownerID and claimantID are not the same
+        // Allow view claimant stuff
         if(user.getAdmin()){
             // JOptionPane.showMessageDialog(this, "You cannot make claims!");
 
@@ -106,11 +108,13 @@ public class ControllerFrame extends JFrame{
         }
 
         // If we've made it here then everything is okay and normal
-
-        post.setClaimerID(user.getUserID());
         post.setStatus("pending");
+        claimants.add(user);
+
         // update the db
-        postRepo.updateClaim(post);
+        // postRepo.updateClaim(post);
+        // post.setClaimerID(user.getUserID());
+
 
         JOptionPane.showMessageDialog(this, "Request sent! :)");
         return true;

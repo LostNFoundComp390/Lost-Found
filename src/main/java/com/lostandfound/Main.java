@@ -28,14 +28,14 @@ public class Main {
                 db = Database.production();
                 DatabaseInitializer.initialize(db);
                 UserRepository userRepo = new DbUserRepository(db);
-                PostRepository postRepo = new DbPostsRepository(db);
+                DbPostsRepository postRepo = new DbPostsRepository(db);
                 UserService userService = new UserService(userRepo);
 
                 // Initialize the posts list by using findAll method
                 List<Post> posts = postRepo.findAll();
 
                 try {
-                    new ControllerFrame(userService, posts, (DbPostsRepository) postRepo);
+                    new ControllerFrame(userService, posts, postRepo);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
