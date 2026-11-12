@@ -73,6 +73,8 @@ public class User {
         public String getRole () {
             return role;
         }
-        public Boolean getAdmin(){return isAdmin;}
+        public Boolean getAdmin(){
+            return this.role.equalsIgnoreCase("admin");
+        }
         public int getUserID() {return userID;}
 }

@@ -1,6 +1,7 @@
 package com.lostandfound.ui;
 
 import com.lostandfound.model.Post;
+import com.lostandfound.model.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,9 +15,11 @@ public class PostComponent extends JPanel {
     private Post post;
     private final JTextArea descriptionArea = new JTextArea();
     private final JButton more = new JButton("More...");
-    private final JButton claim = new JButton("Yours?");
+    private JButton claim = new JButton();
     private String description;
     private boolean expanded = false;
+
+    private User user;
     private ControllerFrame control;
 
     public PostComponent(Post post, ControllerFrame controller){
@@ -69,6 +72,10 @@ public class PostComponent extends JPanel {
                 }
             }
         }
+        // change appearance based on user role
+        setClaimButton();
+
+
         // prep the header container
         secondHeader.add(categoryLabel, constraints(0,0,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
         secondHeader.add(locationLabel,constraints(1,0,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.LINE_START));
@@ -222,6 +229,28 @@ public class PostComponent extends JPanel {
         frame.setSize(600, 350);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+    }
+
+    public void setUser(User user){
+        this.user = user;
+    }
+
+    // change button
+    public void setClaimButton(){
+        //
+        if(this.user == null){
+            return;
+        }
+
+        if(this.user.getAdmin()){
+            this.claim.setText("View Claimants");
+        }else{
+            this.claim.setText("Yours?");
+        }
+
+        // update UI
+        this.revalidate();
+        this.repaint();
     }
   
 

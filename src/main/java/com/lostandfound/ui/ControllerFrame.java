@@ -9,6 +9,7 @@ import com.lostandfound.services.UserService;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ControllerFrame extends JFrame{
@@ -79,8 +80,11 @@ public class ControllerFrame extends JFrame{
     public void setUser(User user){
         this.user = user;
     }
+    public User getUser(){return this.user;}
 
     public boolean requestClaim(Post post){
+        List<User> claimants = new ArrayList<>();
+
         // escape if there is no user...:(
         // means something went real wrong
         if(this.user == null){
@@ -89,8 +93,9 @@ public class ControllerFrame extends JFrame{
         }
 
         // make sure ownerID and claimantID are not the same
-        if(user.getUserID() == post.getOwnerID()){
-            JOptionPane.showMessageDialog(this, "You may not claim your own collection :(");
+        if(user.getAdmin()){
+            // JOptionPane.showMessageDialog(this, "You cannot make claims!");
+
             return false;
         }
 
@@ -101,6 +106,7 @@ public class ControllerFrame extends JFrame{
         }
 
         // If we've made it here then everything is okay and normal
+
         post.setClaimerID(user.getUserID());
         post.setStatus("pending");
         // update the db
