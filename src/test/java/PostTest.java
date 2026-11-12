@@ -43,18 +43,52 @@ public class PostTest {
 
         // Do the actual retrieval checks
         assertEquals("Unclaimed", dbPost.getStatus());
-        assertEquals("2026-09-28", dbPost.getDateOfListing());
+        assertEquals("2026-09-28", dbPost.getPostedString());
         assertEquals("Black Hydroflask", dbPost.getDesc());
         assertEquals("Accessories", dbPost.getCategory());
         assertEquals("Water Bottle", dbPost.getName());
-        assertEquals("2026-10-28",dbPost.getExpirationDate());
-        assertEquals(3, dbPost.getUserID());
+        assertEquals("2026-10-28",dbPost.getStringExpiration());
+        assertEquals(3, dbPost.getOwnerID());
         assertEquals("hydroflask.jpg", dbPost.getPhoto());
         assertEquals("Standard", dbPost.getValueStatus());
         assertEquals("DMF", dbPost.getLocation());
 
         // Check the original post type too, code should update the productID in the original
         assertEquals(ID, testPost.getProductID());
+    }
 
+    @Test
+    public void testRequestClaimUpdatesStatusAndClaimer() {
+        long id = myRepo.save(testPost);
+
+        // make user 5 send a request
+        testPost.setClaimerID(5);
+        testPost.setStatus("Pending");
+        myRepo.updateClaim(testPost);
+
+        // make sure the stuff was changed
+        Post updated = myRepo.findListing(id);
+        assertEquals("Pending", updated.getStatus());
+        assertEquals(5, updated.getClaimerID());
+    }
+
+    @Test
+    public void testRejectClaimResetsPost() {
+        long id = myRepo.save(testPost);
+
+        // pull the test data
+        testPost.setClaimerID(5);
+        testPost.setStatus("Pending");
+        myRepo.updateClaim(testPost);
+
+        // pretend to reject the post
+        testPost.setClaimerID(0);
+        testPost.setStatus("Unclaimed");
+        myRepo.updateClaim(testPost);
+
+        // expect rejection values
+        Post rejected = myRepo.findListing(id);
+        assertEquals("Unclaimed", rejected.getStatus());
+        assertEquals(0, rejected.getClaimerID());
     }
 }
