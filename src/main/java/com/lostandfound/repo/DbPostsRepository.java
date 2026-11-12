@@ -57,7 +57,7 @@ public class DbPostsRepository implements PostRepository{
                 }
             // This would have been duped data, so send back the row that alr exists
             }else{
-                sql = "SELECT listing_id FROM listings WHERE product_name = ? AND user user_id = ? AND date_listed = ?";
+                sql = "SELECT listing_id FROM listings WHERE product_name = ? AND user_id = ? AND date_listed = ?";
                 // Compile
                 ps = conn.prepareStatement(sql);
                 try(ResultSet rs = ps.executeQuery()){
@@ -247,6 +247,37 @@ public class DbPostsRepository implements PostRepository{
         }
 
         return claims;
+    }
+
+    public boolean createClaim(long listingID, int userID){
+        // coalesce will turn a null value into '', even though there should be no nulls
+        // <> claimed will reject any claim attempts if the item is already claimed
+        String sql = """
+                INSERT INTO Claims (listing_id, user_id, status)
+                SELECT listing_id, ?, 'pending' FROM Listings WHERE
+                listing_id = ? 
+                    AND LOWER(COALESCE(status, '')) <> 'claimed'
+                ON CONFLICT(listing_id, user_id) DO NOTHING
+                """;
+
+        // connect to db
+        try (Connection conn = db.getConnection()){
+            // prep sql
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            // insert vars
+            ps.setInt(1, userID);
+            ps.setLong(2, listingID);
+
+            // return feedback based on if ps updates one and only one row
+            if(ps.executeUpdate() == 1){
+                return true;
+            }else{
+                return false;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

@@ -10,6 +10,8 @@ public class DatabaseInitializer {
 
             createUserTable(conn);
             createListingsTable(conn);
+            createClaimsTable(conn);
+
             addMockUsers(conn);
             addMockPosts(conn);
         }

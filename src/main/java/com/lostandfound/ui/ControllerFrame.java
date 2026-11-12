@@ -24,12 +24,9 @@ public class ControllerFrame extends JFrame{
     private User user;
     private DbPostsRepository postRepo;
 
-    private List<User> claimants;
-
 
     public ControllerFrame(UserService userService, List<Post> posts, DbPostsRepository activeRepo) throws IOException{
         // Initialization
-        claimants = new ArrayList<>();
         cardLayout = new CardLayout();
         mainPanel = new JPanel((cardLayout));
         postRepo = activeRepo;
@@ -86,7 +83,7 @@ public class ControllerFrame extends JFrame{
     }
     public User getUser(){return this.user;}
 
-    public boolean requestClaim(Post post){
+    /*public boolean requestClaim(Post post){
         // escape if there is no user...:(
         // means something went real wrong
         if(this.user == null){
@@ -109,7 +106,6 @@ public class ControllerFrame extends JFrame{
 
         // If we've made it here then everything is okay and normal
         post.setStatus("pending");
-        claimants.add(user);
 
         // update the db
         // postRepo.updateClaim(post);
@@ -119,6 +115,48 @@ public class ControllerFrame extends JFrame{
         JOptionPane.showMessageDialog(this, "Request sent! :)");
         return true;
 
+    }*/
+
+    public boolean requestClaim(Post post){
+        // check the user is signed in
+        if(this.user == null){
+            JOptionPane.showMessageDialog(this, "you MUST be logged in! >:(");
+            return false;
+        }
+
+        // check the claim status
+        if(post.getStatus().equalsIgnoreCase("claimed")){
+            JOptionPane.showMessageDialog(this, "This item has recently been claimed!");
+            return false;
+        }
+
+        // check the admin status
+        if(user.getAdmin()){
+            // will have to do the view claimant stuff
+            return false;
+        }
+
+        // If we've made it here then the user is allowed to submit a claim
+        // Try to create the claim
+        try{
+            boolean created = postRepo.createClaim(post.getProductID(), user.getUserID());
+
+            // The claim failed bcuz the user already requested it
+            if (!created){
+                JOptionPane.showMessageDialog(this, "You have already requested!");
+                return false;
+            }
+
+            // The claim succeeded otherwise
+            JOptionPane.showMessageDialog(this, "Request sent!");
+            return true;
+        } catch (RuntimeException e) {
+            // proper error handling to satisfy sprint 4 req
+            e.printStackTrace();
+
+            JOptionPane.showMessageDialog(this,"Could not save your request.","Database Unreachable", JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
     }
 
 }

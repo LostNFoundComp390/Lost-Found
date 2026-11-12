@@ -232,6 +232,7 @@ public class PostComponent extends JPanel {
     }
 
     public void setUser(User user){
+        claim.setEnabled(true);
         this.user = user;
     }
 

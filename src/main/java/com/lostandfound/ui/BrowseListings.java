@@ -184,19 +184,33 @@ public class BrowseListings extends JPanel {
 
         // Delete everything if there is anything, will be useful later with add/deleting
         listingsPanel.removeAll();
+        postComps.clear();
 
         // If there are no posts, provide feedback. Will also be useful later
         if (posts.isEmpty()) {
             emptyLabel.setHorizontalAlignment(SwingConstants.CENTER);
             listingsPanel.add(emptyLabel, constraints(0, 0, 1, 1,0, GridBagConstraints.HORIZONTAL, GridBagConstraints.PAGE_START));
         } else {
-            for (Post post : posts) {
-                // add all the new components. Constraints set on listing earlier forces organization
-                // listingsPanel.add(new PostComponent(post, controls));
-                PostComponent pc = new PostComponent(post,controls);
+//            for (Post post : posts) {
+//                // add all the new components. Constraints set on listing earlier forces organization
+//                // listingsPanel.add(new PostComponent(post, controls));
+//                PostComponent pc = new PostComponent(post,controls);
+//                postComps.add(pc);
+//                listingsPanel.add(pc);
+//            }
+
+            for(Post post: posts){
+                PostComponent pc = new PostComponent(post, controls);
+
+                // set the user for the view claimants button
+                pc.setUser(user);
+                pc.setClaimButton();
+
+                // add the comp
                 postComps.add(pc);
                 listingsPanel.add(pc);
             }
+
         }
 
         // update page
