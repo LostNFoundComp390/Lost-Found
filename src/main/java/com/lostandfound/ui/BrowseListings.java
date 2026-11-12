@@ -45,6 +45,9 @@ public class BrowseListings extends JPanel {
     private final UserService userService;
     private User user;
 
+    private String currentCategory;
+    private String currentKeyword;
+
 
     // Turning BrowseListings into a panel to work with controller Frame
     public BrowseListings(ControllerFrame controller, UserService userService, PostService postService) {
@@ -52,6 +55,8 @@ public class BrowseListings extends JPanel {
         setLayout(new GridBagLayout());
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        this.currentCategory = "All";
+        this.currentKeyword = null;
 
         this.controls = controller;
         this.postService = postService;
@@ -170,6 +175,7 @@ public class BrowseListings extends JPanel {
         add(footerPanel, constraints(0,2,3,1,0,GridBagConstraints.BOTH,GridBagConstraints.SOUTH));
 
         updateAdminVisibility();
+
         // Fonts
         logoutButton.setFont(myFont);
 
@@ -179,6 +185,7 @@ public class BrowseListings extends JPanel {
 
     private void makeSearch() {
         String keyword = searchField.getText();
+        currentKeyword = keyword;
         if(keyword.isBlank()) return;
         setPosts(postService.search(keyword));
     }
@@ -198,6 +205,10 @@ public class BrowseListings extends JPanel {
             }
         }
         setPosts(filteredPosts);
+    }
+
+    private void applyFilter(){
+        //postService.filterPost(currentKeyword, currentCategory);
     }
 
     public void setPosts(List<Post> posts) {

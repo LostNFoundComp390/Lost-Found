@@ -157,7 +157,6 @@ public class DbPostsRepository implements PostRepository{
 
     @Override
     public List<Post> adminSearchByKeyword(String keyword) {
-        // Initialization
         String pattern = "%" + keyword + "%";
         String sql = """
             SELECT *
@@ -195,7 +194,7 @@ public class DbPostsRepository implements PostRepository{
 
     @Override
     public List<Post> userSearchByKeyword(String keyword) {
-        // need a
+        // todo: sql will include a where expiration_status = active
         String pattern = "%" + keyword + "%";
         String sql = """
             SELECT *
