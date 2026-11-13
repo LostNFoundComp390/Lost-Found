@@ -1,17 +1,20 @@
 package com.lostandfound.repo;
+
 import com.lostandfound.db.Database;
 import com.lostandfound.model.Post;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-public class DbPostsRepository implements PostRepository{
+
+public class DbPostsRepository implements PostRepository {
     private final Database db;
+
     public DbPostsRepository(Database db) {
         this.db = db;
     }
 
-    public long save(Post post){
+    public long save(Post post) {
         String sql = """ 
                INSERT OR IGNORE INTO Listings (
                status,
@@ -27,69 +30,57 @@ public class DbPostsRepository implements PostRepository{
                VALUES
                (?,?,?,?,?,?,?,?,?,?);
                 """;
-        try (Connection conn = db.getConnection()){
-
-
-            // Compile
+        try (Connection conn = db.getConnection()) {
             PreparedStatement ps = conn.prepareStatement(sql);
-            // Assign vars
-            ps.setString(1,post.getStatus());
+            ps.setString(1, post.getStatus());
             ps.setString(2, post.getPostedString());
             ps.setString(3, post.getDesc());
-            ps.setString(4,post.getCategory());
-            ps.setString(5,post.getName());
+            ps.setString(4, post.getCategory());
+            ps.setString(5, post.getName());
             ps.setString(6, post.getStringExpiration());
             ps.setInt(7, post.getOwnerID());
-            ps.setString(8,post.getPhoto());
-            ps.setString(9,post.getValueStatus());
-            ps.setString(10,post.getLocation());
+            ps.setString(8, post.getPhoto());
+            ps.setString(9, post.getValueStatus());
+            ps.setString(10, post.getLocation());
 
-            // Check to see if a new row was actually created, prevents dupe data
             int isNewRow = ps.executeUpdate();
-            if (isNewRow>0){
-                try(ResultSet rs = ps.getGeneratedKeys()){
-                    if(rs.next()){
+            if (isNewRow > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
                         long ID = rs.getLong(1);
                         post.setProductID(ID);
                         return ID;
                     }
                 }
-            // This would have been duped data, so send back the row that alr exists
-            }else{
-                sql = "SELECT listing_id FROM listings WHERE product_name = ? AND user user_id = ? AND date_listed = ?";
-                // Compile
+            } else {
+                sql = "SELECT listing_id FROM Listings WHERE product_name = ? AND user_id = ? AND date_listed = ?";
                 ps = conn.prepareStatement(sql);
-                try(ResultSet rs = ps.executeQuery()){
-                    if(rs.next()){
+                ps.setString(1, post.getName());
+                ps.setInt(2, post.getOwnerID());
+                ps.setString(3, post.getPostedString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
                         long ID = rs.getLong(1);
                         post.setProductID(ID);
                         return ID;
                     }
                 }
             }
-            // If we have made it this far w/o seeing the productID then something has gone terribly wrong
             throw new SQLException("SEEK HELP");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
 
-    // Search the DB for a single post based on the ID
-    // Needed this for debug
-    public Post findListing(long ID){
-        // Initialization
+    public Post findListing(long ID) {
         String sql = "SELECT * FROM Listings WHERE listing_id = ?";
         Post post = new Post();
 
-        try(Connection conn = db.getConnection()){
-            // Compile
+        try (Connection conn = db.getConnection()) {
             PreparedStatement ps = conn.prepareStatement(sql);
-            // Insert the ID
             ps.setLong(1, ID);
-            // Try to query
-            try(ResultSet rs = ps.executeQuery()){
-                while(rs.next()){
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
                     post = rowToPost(rs);
                 }
             }
@@ -99,54 +90,33 @@ public class DbPostsRepository implements PostRepository{
         return post;
     }
 
-
-    // Searches for all posts
-    public List<Post> findAll(){
-        // Initialization
+    public List<Post> findAll() {
         String sql = "SELECT * FROM Listings";
         List<Post> posts = new ArrayList<>();
 
-        // Connect to the db
         try (Connection conn = db.getConnection()) {
-            // Compile sql
             PreparedStatement ps = conn.prepareStatement(sql);
-            // Try to query
-            try(ResultSet rs = ps.executeQuery()){
-                while(rs.next()) {
-                    // Create new post
-                    Post post = rowToPost(rs);
-
-                    // Add posts to the list
-                    posts.add(post);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    posts.add(rowToPost(rs));
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        // Todo: handle not found post
         return posts;
     }
 
     public List<Post> searchCategory(String category) {
-        // Initialization
         String sql = "SELECT * FROM Listings WHERE category = ?";
         List<Post> posts = new ArrayList<>();
 
-        // Try to connect to the db
         try (Connection conn = db.getConnection();
-            // Compile sql query
-            PreparedStatement ps = conn.prepareStatement(sql)) {
-            // Insert the category the user selected to sort by
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, category);
-            // Try to actually query
-            try(ResultSet rs = ps.executeQuery()) {
-                // While there are still rows to search
+            try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    // Create a new post object with the helper method
-                    Post post = rowToPost(rs);
-
-                    // Add posts to the list
-                    posts.add(post);
+                    posts.add(rowToPost(rs));
                 }
             }
         } catch (SQLException e) {
@@ -155,12 +125,9 @@ public class DbPostsRepository implements PostRepository{
         return posts;
     }
 
-    // Helper method for turning rows into a Post
-    private Post rowToPost(ResultSet rs) throws SQLException{
-        // Initialization
+    private Post rowToPost(ResultSet rs) throws SQLException {
         Post post = new Post();
 
-        // Assign attributes
         post.setStatus(rs.getString("status"));
         post.setDateOfListing(rs.getString("date_listed"));
         post.setDesc(rs.getString("description"));
@@ -174,25 +141,19 @@ public class DbPostsRepository implements PostRepository{
         post.setValueStatus(rs.getString("value_status"));
         post.setLocation(rs.getString("location"));
 
-        // return final object
         return post;
     }
 
     public void updateClaim(Post post) {
         String sql = "UPDATE Listings SET status = ?, claimer_id = ? WHERE listing_id = ?";
 
-        // Try to connect to the db
         try (Connection conn = db.getConnection();
-             // compile SQL
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            // assign values
             ps.setString(1, post.getStatus());
 
             if (post.getClaimerID() > 0) {
-                // assign the user
                 ps.setInt(2, post.getClaimerID());
             } else {
-                // or set null if there is no claimant somehow
                 ps.setNull(2, Types.INTEGER);
             }
 
@@ -203,6 +164,46 @@ public class DbPostsRepository implements PostRepository{
             throw new RuntimeException(e);
         }
     }
+    public void updatePost(Post post) {
+        String sql = """
+                UPDATE Listings
+                SET description = ?,
+                    category = ?,
+                    product_name = ?,
+                    expiration_date = ?,
+                    photo = ?,
+                    value_status = ?,
+                    location = ?
+                WHERE listing_id = ?;
+                """;
 
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, post.getDesc());
+            ps.setString(2, post.getCategory());
+            ps.setString(3, post.getName());
+            ps.setString(4, post.getStringExpiration());
+            ps.setString(5, post.getPhoto());
+            ps.setString(6, post.getValueStatus());
+            ps.setString(7, post.getLocation());
+            ps.setLong(8, post.getProductID());
 
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
+    @Override
+    public void deletePost(long listingId) {
+        String sql = "DELETE FROM Listings WHERE listing_id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, listingId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+}

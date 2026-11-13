@@ -70,11 +70,15 @@ public class BrowseListings extends JPanel {
         allButton = new JButton("All");
         createPost = new JButton("+");
 
+
+
+
         listModel.add(accessoriesButton, constraints(0, 0, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
         listModel.add(electronicsButton, constraints(0, 1, 1, 0,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
         listModel.add(clothingsButton, constraints(0, 2, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
         listModel.add(bagsButton, constraints(0, 3, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
         listModel.add(allButton, constraints(0, 4, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+
 
         // Action Listener to switch panels
         logout.addActionListener(event -> {
@@ -201,13 +205,13 @@ public class BrowseListings extends JPanel {
 
     // Helper method stolen from postComponents
     private GridBagConstraints constraints(
-        int column,
-        int row,
-        int width,
-        float weightx,
-        float weighty,
-        int fill,
-        int anchor
+            int column,
+            int row,
+            int width,
+            float weightx,
+            float weighty,
+            int fill,
+            int anchor
     ) {
         GridBagConstraints gbc = new GridBagConstraints();
         // Add 5 empty pixels as padding around every component
@@ -244,6 +248,8 @@ public class BrowseListings extends JPanel {
         // build or rebuild depending on the user role
         addPostPanel.setVisible(user.getAdmin());
 
+        setPosts(allPosts);
+
         headerPanel.revalidate();
         headerPanel.repaint();
 
@@ -253,6 +259,14 @@ public class BrowseListings extends JPanel {
 
     public User getUser(){
         return this.user;
+    }
+
+    public void refreshPosts(){
+        setPosts(allPosts);
+    }
+    public void removePost(Post post) {
+        allPosts.remove(post);
+        setPosts(allPosts);
     }
 }
 
