@@ -179,6 +179,37 @@ public class DbPostsRepository implements PostRepository{
         return post;
     }
 
+    public boolean createClaim(long listingID, int userID){
+        // coalesce will turn a null value into '', even though there should be no nulls
+        // <> claimed will reject any claim attempts if the item is already claimed
+        String sql = """
+                INSERT INTO Claims (listing_id, user_id, status)
+                SELECT listing_id, ?, 'pending' FROM Listings WHERE
+                listing_id = ? 
+                    AND LOWER(COALESCE(status, '')) <> 'claimed'
+                ON CONFLICT(listing_id, user_id) DO NOTHING
+                """;
+
+        // connect to db
+        try (Connection conn = db.getConnection()){
+            // prep sql
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            // insert vars
+            ps.setInt(1, userID);
+            ps.setLong(2, listingID);
+
+            // return feedback based on if ps updates one and only one row
+            if(ps.executeUpdate() == 1){
+                return true;
+            }else{
+                return false;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void updateClaim(Post post) {
         String sql = "UPDATE Listings SET status = ?, claimer_id = ? WHERE listing_id = ?";
 
@@ -249,35 +280,5 @@ public class DbPostsRepository implements PostRepository{
         return claims;
     }
 
-    public boolean createClaim(long listingID, int userID){
-        // coalesce will turn a null value into '', even though there should be no nulls
-        // <> claimed will reject any claim attempts if the item is already claimed
-        String sql = """
-                INSERT INTO Claims (listing_id, user_id, status)
-                SELECT listing_id, ?, 'pending' FROM Listings WHERE
-                listing_id = ? 
-                    AND LOWER(COALESCE(status, '')) <> 'claimed'
-                ON CONFLICT(listing_id, user_id) DO NOTHING
-                """;
-
-        // connect to db
-        try (Connection conn = db.getConnection()){
-            // prep sql
-            PreparedStatement ps = conn.prepareStatement(sql);
-
-            // insert vars
-            ps.setInt(1, userID);
-            ps.setLong(2, listingID);
-
-            // return feedback based on if ps updates one and only one row
-            if(ps.executeUpdate() == 1){
-                return true;
-            }else{
-                return false;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
 }
