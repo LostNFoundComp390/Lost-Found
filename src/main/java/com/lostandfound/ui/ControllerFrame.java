@@ -119,10 +119,31 @@ public class ControllerFrame extends JFrame{
 
     }*/
 
-    public boolean requestClaim(Post post){
+    public boolean claimButton(Post post){
         // init
         ClaimService claimServ = new ClaimService(postRepo);
-        JOptionPane.showMessageDialog(this, claimServ.submitClaim(this.user, post));
+        if(this.user.getAdmin()){
+            // init the claims
+            List<Claim> claims = claimServ.getClaims(post);
+
+            // check if there are claims
+            if (claims.isEmpty()){
+                JOptionPane.showMessageDialog(this,"There are no claims to view!");
+                return false;
+            }
+
+            // there must be claims, therefore deploy the radio button dialogue
+
+
+
+        }else{
+            JOptionPane.showMessageDialog(this, claimServ.submitClaim(this.user, post));
+
+            // postComp needs a boolean to disable the button after a claim was submitted
+            if(claimServ.submitClaim(this.user, post).equalsIgnoreCase("claim submitted!")){
+                return true;
+            }
+        }
 
         // check the user role
 
@@ -165,6 +186,8 @@ public class ControllerFrame extends JFrame{
 
             JOptionPane.showMessageDialog(this,"Could not save your request.","Database Unreachable", JOptionPane.ERROR_MESSAGE);
         }*/
+
+        // this allows users to click submit claim again if their claim failed and allows admins to always do view claimants
         return false;
     }
 
