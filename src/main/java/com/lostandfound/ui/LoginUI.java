@@ -6,6 +6,8 @@ package com.lostandfound.ui; /**
 
 import com.lostandfound.auth.UserAuthenticator;
 import com.lostandfound.model.User;
+import com.lostandfound.ui.CreateAccount;
+import com.lostandfound.services.UserService;
 
 import javax.swing.*;
 import java.awt.event.*;
@@ -14,6 +16,7 @@ import java.awt.*;
 public class LoginUI extends JPanel implements ActionListener {
     private UserAuthenticator userAuthenticator;
     private ControllerFrame controller;
+    private UserService userService;
     private JButton loginButton;
     private JLabel usernameLabel;
     private JLabel passwordLabel;
@@ -21,14 +24,15 @@ public class LoginUI extends JPanel implements ActionListener {
     private JLabel titleLabel;
     private JTextField usernameField;
     private JPasswordField passwordField;
+    private JButton createAccountButton;
 
-    public LoginUI(ControllerFrame controller, UserAuthenticator userAuthenticator) {
-        this.userAuthenticator = userAuthenticator;
+    public LoginUI(ControllerFrame controller, UserService userService) {
+        this.userService = userService;
         this.controller = controller;
         buildPanel();
     }
 
-    /*
+    /**
      * Creates a new constraints object for each component so layout settings do not carry
      * over from one component to the next. Much easier to add them to panel
      */
@@ -70,6 +74,9 @@ public class LoginUI extends JPanel implements ActionListener {
         loginButton = new JButton("Log In");
         loginButton.addActionListener(this);
 
+        createAccountButton = new JButton("Create Account");
+        createAccountButton.addActionListener(this);
+
         // Start with a blank label that is visible but the bg is not opaque so the user can't see it
         // It still reserves space so that the window wont resize when the banner appears and disappears
         feedbackLabel = new JLabel(" ", SwingConstants.CENTER);
@@ -79,6 +86,7 @@ public class LoginUI extends JPanel implements ActionListener {
         // Title, login button, and feedback label span both columns.
         add(titleLabel, constraints(0, 0, 2, GridBagConstraints.NONE, 0, GridBagConstraints.CENTER));
         add(loginButton, constraints(0, 3, 2, GridBagConstraints.NONE, 0, GridBagConstraints.CENTER));
+        add(createAccountButton, constraints(0, 5, 2, GridBagConstraints.NONE, 0, GridBagConstraints.CENTER));
         add(feedbackLabel, constraints(0, 4, 2, GridBagConstraints.HORIZONTAL, 1, GridBagConstraints.CENTER));
 
         // The text fields consumes any extra horizontal space in their row
@@ -95,6 +103,13 @@ public class LoginUI extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+
+        if (e.getSource() == createAccountButton){//Opens the Create Account page when the Create Account Button is Pushed
+            new CreateAccount(controller);//passes the controller so CreateAccount can bring back the Login window
+            controller.setVisible(false);//closes Login window
+            return;
+        }
+
         String username = usernameField.getText();
 
         // grab the password. But since it's swings password field it returns as an array of chars
@@ -102,20 +117,23 @@ public class LoginUI extends JPanel implements ActionListener {
         String typedPassword = new String(passwordField.getPassword());
 
         // Authenticate users regardless of the data origin: file or database
-        User user = userAuthenticator.authenticate(username, typedPassword);
+        User user = userService.login(username, typedPassword);
         if (user != null) {
-            // Display a success window
-            feedbackLabel.setText("Login successful! :)");
-            feedbackLabel.setBackground(Color.GREEN);
-            feedbackLabel.setOpaque(true);
-
+            // reset the fields for when the user logs out
             usernameField.setText("");
             passwordField.setText("");
-            feedbackTimer(1000);
 
             // this is where my BrowseListings page windows should open up
-            // Switch to the right page
-            controller.showBrowsing();
+            // send the current user through
+            controller.showBrowsing(user);
+
+
+           /* // Check if the user is an admin and inform browseListing of said status
+            if(user.getRole().equalsIgnoreCase("admin")){
+                controller.showBrowsing(user);
+            }else{
+                controller.showBrowsing(false);
+            }*/
 
         } else {
             // Alert the user of their mistake
@@ -127,12 +145,10 @@ public class LoginUI extends JPanel implements ActionListener {
 
 
         }
-
         // overwrite sensitive data
-        typedPassword = "";
     }
 
-    /*
+    /**
      * Helper method to hide the feedback banner after some odd seconds
      */
     private void feedbackTimer(int milliseconds) {
