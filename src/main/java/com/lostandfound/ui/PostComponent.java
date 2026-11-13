@@ -175,7 +175,7 @@ public class PostComponent extends JPanel {
         setExpanded(!expanded);
     }
     private void toggleClaim(){
-        if(control != null && control.requestClaim(this.post)){
+        if(control != null && control.claimButton(this.post)){
             claim.setText("Requested!");
             claim.setEnabled(false);
         }
