@@ -1,9 +1,11 @@
 package com.lostandfound.ui;
 
 
+import com.lostandfound.model.Claim;
 import com.lostandfound.model.Post;
 import com.lostandfound.model.User;
 import com.lostandfound.repo.DbPostsRepository;
+import com.lostandfound.services.ClaimService;
 import com.lostandfound.services.UserService;
 
 import javax.swing.*;
@@ -118,8 +120,13 @@ public class ControllerFrame extends JFrame{
     }*/
 
     public boolean requestClaim(Post post){
-        // check the user is signed in
-        if(this.user == null){
+        // init
+        ClaimService claimServ = new ClaimService(postRepo);
+        JOptionPane.showMessageDialog(this, claimServ.submitClaim(this.user, post));
+
+        // check the user role
+
+/*        if(this.user == null){
             JOptionPane.showMessageDialog(this, "you MUST be logged in! >:(");
             return false;
         }
@@ -133,6 +140,8 @@ public class ControllerFrame extends JFrame{
         // check the admin status
         if(user.getAdmin()){
             // will have to do the view claimant stuff
+            List<Claim> claims = postRepo.findClaims(post.getProductID());
+
             return false;
         }
 
@@ -155,7 +164,7 @@ public class ControllerFrame extends JFrame{
             e.printStackTrace();
 
             JOptionPane.showMessageDialog(this,"Could not save your request.","Database Unreachable", JOptionPane.ERROR_MESSAGE);
-        }
+        }*/
         return false;
     }
 
