@@ -40,7 +40,7 @@ public class ClaimService {
         }
 
         // yeah idk we shouldnt have gotten here but I had to return something
-        return "umm...";
+        return "Could not save your request :(";
     }
 
     // get the list of claims
