@@ -35,4 +35,8 @@ public interface PostRepository {
      */
     List<Post> searchCategory(String category);
 
+    void updatePost(Post post);
+
+    void deletePost(long listingID);
+
 }

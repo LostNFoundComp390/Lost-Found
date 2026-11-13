@@ -201,13 +201,13 @@ public class BrowseListings extends JPanel {
 
     // Helper method stolen from postComponents
     private GridBagConstraints constraints(
-        int column,
-        int row,
-        int width,
-        float weightx,
-        float weighty,
-        int fill,
-        int anchor
+            int column,
+            int row,
+            int width,
+            float weightx,
+            float weighty,
+            int fill,
+            int anchor
     ) {
         GridBagConstraints gbc = new GridBagConstraints();
         // Add 5 empty pixels as padding around every component
@@ -244,6 +244,8 @@ public class BrowseListings extends JPanel {
         // build or rebuild depending on the user role
         addPostPanel.setVisible(user.getAdmin());
 
+        setPosts(allPosts);
+
         headerPanel.revalidate();
         headerPanel.repaint();
 
@@ -253,6 +255,14 @@ public class BrowseListings extends JPanel {
 
     public User getUser(){
         return this.user;
+    }
+
+    public void refreshPosts(){
+        setPosts(allPosts);
+    }
+    public void removePost(Post post) {
+        allPosts.remove(post);
+        setPosts(allPosts);
     }
 }
 

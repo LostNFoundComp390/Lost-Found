@@ -15,6 +15,8 @@ public class PostComponent extends JPanel {
     private final JTextArea descriptionArea = new JTextArea();
     private final JButton more = new JButton("More...");
     private final JButton claim = new JButton("Yours?");
+    private final JButton edit = new JButton("Edit");
+    private final JButton delete = new JButton("Delete");
     private String description;
     private boolean expanded = false;
     private ControllerFrame control;
@@ -77,7 +79,11 @@ public class PostComponent extends JPanel {
         // claim MUST come first because some components wont have a more..
         buttonsContainer.add(claim, constraints(0,0,1,1,GridBagConstraints.HORIZONTAL, GridBagConstraints.LINE_START));
         buttonsContainer.add(more,constraints(1,0,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
-
+        buttonsContainer.add(edit, constraints(0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
+        buttonsContainer.add(delete, constraints(1,1,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
+        delete.setFont(myFont);
+        delete.addActionListener(event -> openDelete());
+        delete.setVisible(control != null && control.canModifyPost(this.post));
         // contain the description and the button
         // Put the button below the description
         descriptionContainer.add(descriptionArea, constraints(0,1,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.LINE_START));
@@ -105,6 +111,10 @@ public class PostComponent extends JPanel {
         descriptionArea.setFont(myFont);
         more.setFont(myFont);
         claim.setFont(myFont);
+        edit.setFont(myFont);
+        delete.setFont(myFont);
+        edit.addActionListener(event -> openEdit());
+        edit.setVisible(control != null && control.canModifyPost(this.post));
         expirationDate.setFont(myFont);
         postedDate.setFont(myFont);
 
@@ -173,6 +183,17 @@ public class PostComponent extends JPanel {
             claim.setEnabled(false);
         }
     }
+    private void openEdit(){
+        if(control != null){
+            control.editPost(this.post);
+        }
+    }
+
+    private void  openDelete() {
+        if (control != null) {
+            control.deletePost(this.post);
+        }
+    }
 
     public void setExpanded(Boolean expanded){
         this.expanded = expanded;
@@ -223,10 +244,10 @@ public class PostComponent extends JPanel {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
-  
 
-//    Test main
-   public static void main(String[] args) {
-       SwingUtilities.invokeLater(PostComponent::test);
-   }
+
+    //    Test main
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(PostComponent::test);
+    }
 }
