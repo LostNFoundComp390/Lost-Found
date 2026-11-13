@@ -280,5 +280,11 @@ public class DbPostsRepository implements PostRepository{
         return claims;
     }
 
+    public void deleteClaim(long ClaimID){
+        String sql = """
+                
+                """;
+    }
+
 
 }
