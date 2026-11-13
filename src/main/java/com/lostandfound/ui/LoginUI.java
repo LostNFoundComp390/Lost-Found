@@ -1,4 +1,5 @@
-package com.lostandfound.ui; /**
+package com.lostandfound.ui;
+/**
  * Kaitlyn Tucker
  * Comp390
  * Login screen without database functionality. Enter button doesn't work.
