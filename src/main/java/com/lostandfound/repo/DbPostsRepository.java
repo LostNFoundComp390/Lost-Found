@@ -210,7 +210,7 @@ public class DbPostsRepository implements PostRepository{
         }
     }
 
-    public void updateClaim(Post post) {
+    public void updateListingStatus(Post post) {
         String sql = "UPDATE Listings SET status = ?, claimer_id = ? WHERE listing_id = ?";
 
         // Try to connect to the db
@@ -244,11 +244,13 @@ public class DbPostsRepository implements PostRepository{
         String sql = """ 
                 SELECT 
                 c.claim_id,
+                c.listing_id,
                 c.user_id,
                 u.username,
                 c.status
                 FROM Claims c JOIN Users u ON u.user_id = c.user_id
                 WHERE c.listing_id = ?
+                    AND (c.status IS NULL OR LOWER(TRIM(c.status)) <> 'claimed')
                 """;
         // connect to db
         try (Connection conn = db.getConnection()){
@@ -263,8 +265,10 @@ public class DbPostsRepository implements PostRepository{
                 // while there are still rows returned
                 while(rs.next()){
                     // create a claim object of the current row
+                    //     public Claim(long claimID, long postID, int userID, String username, String status) {
                     Claim claim = new Claim(
                             rs.getLong("claim_id"),
+                            rs.getLong("listing_id"),
                             rs.getInt("user_id"),
                             rs.getString("username"),
                             rs.getString("status"));
@@ -280,10 +284,43 @@ public class DbPostsRepository implements PostRepository{
         return claims;
     }
 
-    public void deleteClaim(long ClaimID){
+    public void updateClaim(long claimID, String status){
+        // prep sql
         String sql = """
-                
+                UPDATE claims 
+                SET STATUS = ?
+                WHERE claim_id = ?
                 """;
+        try(Connection conn = db.getConnection()){
+            // prep sql
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            // assign vars
+            ps.setString(1, status);
+            ps.setLong(2, claimID);
+            // update the db
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteClaim(long claimID){
+        // prep the sql
+        String sql = "DELETE FROM Claims WHERE claim_id = ? ";
+
+        try(Connection conn = db.getConnection()){
+            // prep sql
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            // insert var
+            ps.setLong(1, claimID);
+
+            // delete the row
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
