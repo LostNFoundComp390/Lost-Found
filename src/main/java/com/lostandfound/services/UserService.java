@@ -38,7 +38,8 @@ public class UserService {
 
             String hashFromDb = user.getPassword();
             verified = Password.check(password, hashFromDb).withBcrypt();
-            UserSession.getInstance().setCurrentUser(user);
+
+            if(verified) UserSession.getInstance().setCurrentUser(user);
         }
 
         return verified ? user : null;
