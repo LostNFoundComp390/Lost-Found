@@ -7,6 +7,7 @@ import com.lostandfound.repo.DbPostsRepository;
 import com.lostandfound.repo.DbUserRepository;
 import com.lostandfound.repo.PostRepository;
 import com.lostandfound.repo.UserRepository;
+import com.lostandfound.services.ClaimService;
 import com.lostandfound.services.PostService;
 import com.lostandfound.services.UserService;
 import com.lostandfound.controller.ControllerFrame;
@@ -27,13 +28,15 @@ public class Main {
                 db = Database.production();
                 DatabaseInitializer.initialize(db);
                 UserRepository userRepo = new DbUserRepository(db);
-                PostRepository postRepo = new DbPostsRepository(db);
+                DbPostsRepository postRepo = new DbPostsRepository(db);
                 UserService userService = new UserService(userRepo);
                 PostService postService = new PostService(postRepo);
+                ClaimService claimService = new ClaimService(postRepo);
 
+                postService.updateExpiredStatus();
 
                 try {
-                    new ControllerFrame(userService, postService);
+                    new ControllerFrame(userService, postService, claimService);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

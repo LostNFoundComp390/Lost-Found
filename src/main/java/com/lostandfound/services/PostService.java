@@ -1,10 +1,10 @@
 package com.lostandfound.services;
 
 import com.lostandfound.model.Post;
-import com.lostandfound.model.User;
 import com.lostandfound.model.UserSession;
 import com.lostandfound.repo.PostRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class PostService {
@@ -31,5 +31,11 @@ public class PostService {
                 ? postRepo.searchByKeyword(keyword)
                 : postRepo.searchByKeywordNonExpired(keyword);
         }
+    }
+
+    public void updateExpiredStatus(){
+
+        postRepo.updateExpiredStatus();
+
     }
 }
