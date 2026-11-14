@@ -99,7 +99,7 @@ public class DatabaseInitializer {
         // do not allow multiple users to be accepted
         String sql1 = """
                 CREATE UNIQUE INDEX IF NOT EXISTS one_accepted 
-                ON Claims(listing_id) WHERE status = 'accepted' 
+                ON Claims(listing_id) WHERE status = 'claimed' 
                 """;
 
         try (Statement st = conn.createStatement()){
