@@ -62,7 +62,6 @@
             showLogin();
 
             // show everything :)!!!!
-            pack();
             setLocationRelativeTo(null);
             setVisible(true);
         }
@@ -72,13 +71,18 @@
             UserSession.getInstance().logout();
             // log out
             cardLayout.show(mainPanel, login);
+            pack();
         }
 
         public void showBrowsing(){
             browsingPanel.updateAdminVisibility();
             browsingPanel.loadPosts();
+
             // Show the screen
             cardLayout.show(mainPanel, browsing);
+
+            // fills the screen
+            setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
 
         /*public boolean requestClaim(Post post){
@@ -125,7 +129,7 @@
 
             if(currentUser.isAdmin()){
                 // init the claims
-                List<Claim> claims = this.claimServ.getClaims(post);
+                List<Claim> claims = claimServ.getClaims(post);
 
                 // check if there are claims
                 if (claims.isEmpty()){
