@@ -1,5 +1,6 @@
 package com.lostandfound.repo;
 import com.lostandfound.db.Database;
+import com.lostandfound.model.Claim;
 import com.lostandfound.model.Post;
 
 import java.sql.*;
@@ -56,7 +57,7 @@ public class DbPostsRepository implements PostRepository{
                 }
             // This would have been duped data, so send back the row that alr exists
             }else{
-                sql = "SELECT listing_id FROM listings WHERE product_name = ? AND user user_id = ? AND date_listed = ?";
+                sql = "SELECT listing_id FROM listings WHERE product_name = ? AND user_id = ? AND date_listed = ?";
                 // Compile
                 ps = conn.prepareStatement(sql);
                 try(ResultSet rs = ps.executeQuery()){
@@ -178,7 +179,38 @@ public class DbPostsRepository implements PostRepository{
         return post;
     }
 
-    public void updateClaim(Post post) {
+    public boolean createClaim(long listingID, int userID){
+        // coalesce will turn a null value into '', even though there should be no nulls
+        // <> claimed will reject any claim attempts if the item is already claimed
+        String sql = """
+                INSERT INTO Claims (listing_id, user_id, status)
+                SELECT listing_id, ?, 'pending' FROM Listings WHERE
+                listing_id = ? 
+                    AND LOWER(COALESCE(status, '')) <> 'claimed'
+                ON CONFLICT(listing_id, user_id) DO NOTHING
+                """;
+
+        // connect to db
+        try (Connection conn = db.getConnection()){
+            // prep sql
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            // insert vars
+            ps.setInt(1, userID);
+            ps.setLong(2, listingID);
+
+            // return feedback based on if ps updates one and only one row
+            if(ps.executeUpdate() == 1){
+                return true;
+            }else{
+                return false;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updateListingStatus(Post post) {
         String sql = "UPDATE Listings SET status = ?, claimer_id = ? WHERE listing_id = ?";
 
         // Try to connect to the db
@@ -204,5 +236,92 @@ public class DbPostsRepository implements PostRepository{
         }
     }
 
+    public List<Claim> findClaims(long listingID){
+        // init return var
+        List<Claim> claims = new ArrayList<>();
 
+        // prep sql
+        String sql = """ 
+                SELECT 
+                c.claim_id,
+                c.listing_id,
+                c.user_id,
+                u.username,
+                c.status
+                FROM Claims c JOIN Users u ON u.user_id = c.user_id
+                WHERE c.listing_id = ?
+                    AND (c.status IS NULL OR LOWER(TRIM(c.status)) <> 'claimed')
+                """;
+        // connect to db
+        try (Connection conn = db.getConnection()){
+            // prep sql
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            // insert input var into sql
+            ps.setLong(1, listingID);
+
+            // seek results
+            try(ResultSet rs = ps.executeQuery()){
+                // while there are still rows returned
+                while(rs.next()){
+                    // create a claim object of the current row
+                    //     public Claim(long claimID, long postID, int userID, String username, String status) {
+                    Claim claim = new Claim(
+                            rs.getLong("claim_id"),
+                            rs.getLong("listing_id"),
+                            rs.getInt("user_id"),
+                            rs.getString("username"),
+                            rs.getString("status"));
+
+                    // insert claim into list
+                    claims.add(claim);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return claims;
     }
+
+    public void updateClaim(long claimID, String status){
+        // prep sql
+        String sql = """
+                UPDATE claims 
+                SET STATUS = ?
+                WHERE claim_id = ?
+                """;
+        try(Connection conn = db.getConnection()){
+            // prep sql
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            // assign vars
+            ps.setString(1, status);
+            ps.setLong(2, claimID);
+            // update the db
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteClaim(long claimID){
+        // prep the sql
+        String sql = "DELETE FROM Claims WHERE claim_id = ? ";
+
+        try(Connection conn = db.getConnection()){
+            // prep sql
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            // insert var
+            ps.setLong(1, claimID);
+
+            // delete the row
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+}

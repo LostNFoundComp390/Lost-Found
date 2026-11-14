@@ -10,6 +10,8 @@ public class DatabaseInitializer {
 
             createUserTable(conn);
             createListingsTable(conn);
+            createClaimsTable(conn);
+
             addMockUsers(conn);
             addMockPosts(conn);
         }
@@ -74,6 +76,37 @@ public class DatabaseInitializer {
             """;
         try (Statement st = conn.createStatement()) {
             st.execute(sql);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private static void createClaimsTable(Connection conn){
+        String sql = """
+                CREATE TABLE IF NOT EXISTS Claims (
+                claim_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                listing_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                status TEXT NOT NULL DEFAULT 'pending',
+                
+                UNIQUE(listing_id, user_id),
+                FOREIGN KEY(listing_id) REFERENCES Listings(listing_id),
+                FOREIGN KEY(user_id) REFERENCES Users(user_id)
+                )
+                """;
+
+        // do not allow multiple users to be accepted
+        String sql1 = """
+                CREATE UNIQUE INDEX IF NOT EXISTS one_accepted 
+                ON Claims(listing_id) WHERE status = 'claimed' 
+                """;
+
+        try (Statement st = conn.createStatement()){
+            // create the table
+            st.execute(sql);
+            // create the index which acts as a constraint
+            st.execute(sql1);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

@@ -1,14 +1,17 @@
 package com.lostandfound.ui;
 
 
+import com.lostandfound.model.Claim;
 import com.lostandfound.model.Post;
 import com.lostandfound.model.User;
 import com.lostandfound.repo.DbPostsRepository;
+import com.lostandfound.services.ClaimService;
 import com.lostandfound.services.UserService;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ControllerFrame extends JFrame{
@@ -21,13 +24,17 @@ public class ControllerFrame extends JFrame{
     private LoginUI loginPanel;
 
     private User user;
-    private DbPostsRepository postRepo;
+    private final DbPostsRepository postRepo;
+    private final ClaimService claimServ;
+
 
     public ControllerFrame(UserService userService, List<Post> posts, DbPostsRepository activeRepo) throws IOException{
         // Initialization
         cardLayout = new CardLayout();
         mainPanel = new JPanel((cardLayout));
         postRepo = activeRepo;
+        claimServ = new ClaimService(postRepo);
+
 
         setTitle("Lost-Found");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -79,8 +86,9 @@ public class ControllerFrame extends JFrame{
     public void setUser(User user){
         this.user = user;
     }
+    public User getUser(){return this.user;}
 
-    public boolean requestClaim(Post post){
+    /*public boolean requestClaim(Post post){
         // escape if there is no user...:(
         // means something went real wrong
         if(this.user == null){
@@ -88,9 +96,10 @@ public class ControllerFrame extends JFrame{
             return false;
         }
 
-        // make sure ownerID and claimantID are not the same
-        if(user.getUserID() == post.getOwnerID()){
-            JOptionPane.showMessageDialog(this, "You may not claim your own collection :(");
+        // Allow view claimant stuff
+        if(user.getAdmin()){
+            // JOptionPane.showMessageDialog(this, "You cannot make claims!");
+
             return false;
         }
 
@@ -101,14 +110,88 @@ public class ControllerFrame extends JFrame{
         }
 
         // If we've made it here then everything is okay and normal
-        post.setClaimerID(user.getUserID());
         post.setStatus("pending");
+
         // update the db
-        postRepo.updateClaim(post);
+        // postRepo.updateClaim(post);
+        // post.setClaimerID(user.getUserID());
+
 
         JOptionPane.showMessageDialog(this, "Request sent! :)");
         return true;
 
+    }*/
+
+    public boolean claimButton(Post post){
+        if(this.user.getAdmin()){
+            // init the claims
+            List<Claim> claims = this.claimServ.getClaims(post);
+
+            // check if there are claims
+            if (claims.isEmpty()){
+                JOptionPane.showMessageDialog(this,"There are no claims to view!");
+                return false;
+            }
+
+            // there must be claims, therefore deploy the radio button dialogue
+            ViewClaimants viewer = new ViewClaimants(post, this.postRepo, this.claimServ);
+            viewer.showAdmin();
+
+
+        }else{
+            String feedback = claimServ.submitClaim(this.user, post);
+            JOptionPane.showMessageDialog(this, feedback);
+
+            // postComp needs a boolean to disable the button after a claim was submitted
+            if(feedback.equalsIgnoreCase("claim submitted!") || feedback.equalsIgnoreCase("You have already submitted a claim!")){
+                return true;
+            }
+        }
+
+        // check the user role
+
+/*        if(this.user == null){
+            JOptionPane.showMessageDialog(this, "you MUST be logged in! >:(");
+            return false;
+        }
+
+        // check the claim status
+        if(post.getStatus().equalsIgnoreCase("claimed")){
+            JOptionPane.showMessageDialog(this, "This item has recently been claimed!");
+            return false;
+        }
+
+        // check the admin status
+        if(user.getAdmin()){
+            // will have to do the view claimant stuff
+            List<Claim> claims = postRepo.findClaims(post.getProductID());
+
+            return false;
+        }
+
+        // If we've made it here then the user is allowed to submit a claim
+        // Try to create the claim
+        try{
+            boolean created = postRepo.createClaim(post.getProductID(), user.getUserID());
+
+            // The claim failed bcuz the user already requested it
+            if (!created){
+                JOptionPane.showMessageDialog(this, "You have already requested!");
+                return false;
+            }
+
+            // The claim succeeded otherwise
+            JOptionPane.showMessageDialog(this, "Request sent!");
+            return true;
+        } catch (RuntimeException e) {
+            // proper error handling to satisfy sprint 4 req
+            e.printStackTrace();
+
+            JOptionPane.showMessageDialog(this,"Could not save your request.","Database Unreachable", JOptionPane.ERROR_MESSAGE);
+        }*/
+
+        // this allows users to click submit claim again if their claim failed and allows admins to always do view claimants
+        return false;
     }
 
 }
