@@ -151,7 +151,7 @@ public class PostTest {
         claimServ.deleteClaim(deleted.getClaimID());
 
         // check the db records
-        Post dbPost = myRepo.findListing(postID);
+        Post dbPost = myRepo.findById(postID);
 
         // Check for expected results
         assertEquals("claimed",dbPost.getStatus());

@@ -121,9 +121,9 @@ public class DbPostsRepository implements PostRepository{
     }
 
     public List<Post> findAllNonExpired(){
-        // Todo: add Where is_expired = false
         String sql = """
             SELECT * FROM Listings
+            WHERE is_expired = 0
             """;
         List<Post> posts = new ArrayList<>();
 
@@ -219,12 +219,11 @@ public class DbPostsRepository implements PostRepository{
 
     @Override
     public List<Post> searchByKeywordNonExpired(String keyword) {
-        // todo: sql will include a where is_expired = false
         String pattern = "%" + keyword + "%";
         String sql = """
             SELECT *
             FROM Listings
-            WHERE (product_name like ? OR description like ?)
+            WHERE (is_expired = 0) AND (product_name like ? OR description like ?)
             """;
 
 
