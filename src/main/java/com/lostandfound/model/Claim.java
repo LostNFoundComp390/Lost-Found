@@ -2,15 +2,21 @@ package com.lostandfound.model;
 
 public class Claim {
     private final long claimID;
+    private final long postID;
     private final int userID;
     private final String username;
-    private final String status;
+    private String status;
 
-    public Claim(long claimID, int userID, String username, String s) {
+    public Claim(long claimID, long postID, int userID, String username, String status) {
         this.claimID = claimID;
+        this.postID = postID;
         this.userID = userID;
         this.username = username;
-        status = s;
+        this.status = status;
+    }
+
+    public void setStatus(String status){
+        this.status = status;
     }
 
     public long getClaimID(){
@@ -28,6 +34,11 @@ public class Claim {
 
     @Override
     public String toString(){
-        return username + " " + status;
+        if (status.equalsIgnoreCase("pending")){
+            return username + " is currently awaiting your evaluation";
+        }
+
+        return username + " is currently " + status;
+
     }
 }
