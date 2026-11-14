@@ -1,10 +1,7 @@
 package com.lostandfound.repo;
 
 import com.lostandfound.model.Post;
-import com.lostandfound.model.User;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 public interface PostRepository {
@@ -26,7 +23,7 @@ public interface PostRepository {
      * @param ID
      * @return {@link Post}
      */
-    Post findListing(long ID);
+    Post findById(long ID);
 
     /**
      * Searches the database for the requested category then returns a list of all the rows
@@ -35,7 +32,9 @@ public interface PostRepository {
      */
     List<Post> searchCategory(String category);
 
-    List<Post> userSearchByKeyword(String keyword);
-    List<Post> adminSearchByKeyword(String keyword);
+    List<Post> searchByKeywordNonExpired(String keyword);
 
+    List<Post> searchByKeyword(String keyword);
+
+    List<Post> findAllNonExpired();
 }

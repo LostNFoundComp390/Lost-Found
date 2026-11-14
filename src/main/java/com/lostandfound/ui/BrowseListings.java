@@ -16,7 +16,7 @@ import java.util.List;
 
 public class BrowseListings extends JPanel {
     private final ControllerFrame controls;
-    private final List<Post> allPosts;
+    private List<Post> allPosts;
 
     private final JPanel categoryPanel;
     private final JPanel searchPanel;
@@ -61,7 +61,6 @@ public class BrowseListings extends JPanel {
         this.controls = controller;
         this.postService = postService;
         this.userService = userService;
-        this.allPosts = postService.findAll();
 
         headerPanel = new JPanel(new BorderLayout(10, 10));
         searchPanel = new JPanel(new BorderLayout(5, 0));
@@ -174,19 +173,14 @@ public class BrowseListings extends JPanel {
         // Should be at the bottom of the page
         add(footerPanel, constraints(0,2,3,1,0,GridBagConstraints.BOTH,GridBagConstraints.SOUTH));
 
-        updateAdminVisibility();
-
         // Fonts
         logoutButton.setFont(myFont);
 
-        // Adding posts
-        setPosts(allPosts);
     }
 
     private void makeSearch() {
         String keyword = searchField.getText();
         currentKeyword = keyword;
-        if(keyword.isBlank()) return;
         setPosts(postService.search(keyword));
     }
 
@@ -207,6 +201,9 @@ public class BrowseListings extends JPanel {
         setPosts(filteredPosts);
     }
 
+    /**
+     * Search by using both keyword and category
+     */
     private void applyFilter(){
         //postService.filterPost(currentKeyword, currentCategory);
     }
@@ -260,6 +257,13 @@ public class BrowseListings extends JPanel {
         return gbc;
     }
 
+    /**
+     * We add the posts only after the user has logged in
+     */
+    public void loadPosts() {
+        this.allPosts = postService.findAll();
+        setPosts(allPosts);
+    }
     /**
      * This will handle what component can be seen by an admin
      */

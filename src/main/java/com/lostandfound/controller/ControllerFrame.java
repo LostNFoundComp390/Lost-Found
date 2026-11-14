@@ -71,6 +71,7 @@ public class ControllerFrame extends JFrame{
 
     public void showBrowsing(){
         browsingPanel.updateAdminVisibility();
+        browsingPanel.loadPosts();
         // Show the screen
         cardLayout.show(mainPanel, browsing);
     }

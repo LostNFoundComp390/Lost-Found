@@ -1,6 +1,7 @@
 package com.lostandfound.services;
 
 import com.lostandfound.model.Post;
+import com.lostandfound.model.User;
 import com.lostandfound.model.UserSession;
 import com.lostandfound.repo.PostRepository;
 
@@ -12,20 +13,23 @@ public class PostService {
         this.postRepo = postRepo;
     }
 
-
     public List<Post> findAll() {
-        return postRepo.findAll();
+        boolean isAdmin = UserSession.getInstance().getCurrentUser().isAdmin();
+        return isAdmin
+            ? postRepo.findAll()
+            : postRepo.findAllNonExpired();
     }
 
     public List<Post> search(String keyword) {
         boolean isAdmin = UserSession.getInstance().getCurrentUser().isAdmin();
-
-        if(!keyword.isBlank()) {
+        if(keyword.isBlank()) {
             return isAdmin
-                ? postRepo.adminSearchByKeyword(keyword)
-                : postRepo.userSearchByKeyword(keyword);
+                ? postRepo.findAll()
+                : postRepo.findAllNonExpired();
         }else{
-            throw new IllegalArgumentException("keyword is empty");
+            return isAdmin
+                ? postRepo.searchByKeyword(keyword)
+                : postRepo.searchByKeywordNonExpired(keyword);
         }
     }
 }

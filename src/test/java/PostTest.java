@@ -39,7 +39,7 @@ public class PostTest {
     public void testSaveQueryDb(){
         // get the productID while saving the post into the database
         long ID = myRepo.save(testPost);
-        Post dbPost = myRepo.findListing(ID);
+        Post dbPost = myRepo.findById(ID);
 
         // Do the actual retrieval checks
         assertEquals("Unclaimed", dbPost.getStatus());
@@ -67,7 +67,7 @@ public class PostTest {
         myRepo.updateClaim(testPost);
 
         // make sure the stuff was changed
-        Post updated = myRepo.findListing(id);
+        Post updated = myRepo.findById(id);
         assertEquals("Pending", updated.getStatus());
         assertEquals(5, updated.getClaimerID());
     }
@@ -87,7 +87,7 @@ public class PostTest {
         myRepo.updateClaim(testPost);
 
         // expect rejection values
-        Post rejected = myRepo.findListing(id);
+        Post rejected = myRepo.findById(id);
         assertEquals("Unclaimed", rejected.getStatus());
         assertEquals(0, rejected.getClaimerID());
     }
