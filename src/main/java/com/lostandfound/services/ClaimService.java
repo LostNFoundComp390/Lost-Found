@@ -50,9 +50,20 @@ public class ClaimService {
 
     // tell the database
     public void approveClaim(Post post, Claim approvedClaim){
-        post.setStatus("Claimed");
+        post.setStatus("claimed");
         post.setClaimerID(approvedClaim.getUserID());
-        myRepo.updateClaim(post);
+        myRepo.updateListingStatus(post);
+        myRepo.updateClaim(approvedClaim.getClaimID(), "claimed");
+//        myRepo.deleteClaim(approvedClaim.getClaimID());
+    }
+
+    public void rejectClaim(long claimID){
+        myRepo.updateClaim(claimID,"rejected");
+//        myRepo.deleteClaim(claimID);
+    }
+
+    public void deleteClaim(long claimID){
+        myRepo.deleteClaim(claimID);
     }
 
 }
