@@ -24,7 +24,8 @@ public class ControllerFrame extends JFrame{
     private LoginUI loginPanel;
 
     private User user;
-    private DbPostsRepository postRepo;
+    private final DbPostsRepository postRepo;
+    private final ClaimService claimServ;
 
 
     public ControllerFrame(UserService userService, List<Post> posts, DbPostsRepository activeRepo) throws IOException{
@@ -32,6 +33,8 @@ public class ControllerFrame extends JFrame{
         cardLayout = new CardLayout();
         mainPanel = new JPanel((cardLayout));
         postRepo = activeRepo;
+        claimServ = new ClaimService(postRepo);
+
 
         setTitle("Lost-Found");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -120,11 +123,9 @@ public class ControllerFrame extends JFrame{
     }*/
 
     public boolean claimButton(Post post){
-        // init
-        ClaimService claimServ = new ClaimService(postRepo);
         if(this.user.getAdmin()){
             // init the claims
-            List<Claim> claims = claimServ.getClaims(post);
+            List<Claim> claims = this.claimServ.getClaims(post);
 
             // check if there are claims
             if (claims.isEmpty()){
@@ -133,14 +134,16 @@ public class ControllerFrame extends JFrame{
             }
 
             // there must be claims, therefore deploy the radio button dialogue
-
+            ViewClaimants viewer = new ViewClaimants(post, this.postRepo, this.claimServ);
+            viewer.showAdmin();
 
 
         }else{
-            JOptionPane.showMessageDialog(this, claimServ.submitClaim(this.user, post));
+            String feedback = claimServ.submitClaim(this.user, post);
+            JOptionPane.showMessageDialog(this, feedback);
 
             // postComp needs a boolean to disable the button after a claim was submitted
-            if(claimServ.submitClaim(this.user, post).equalsIgnoreCase("claim submitted!")){
+            if(feedback.equalsIgnoreCase("claim submitted!") || feedback.equalsIgnoreCase("You have already submitted a claim!")){
                 return true;
             }
         }
