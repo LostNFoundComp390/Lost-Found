@@ -2,8 +2,12 @@ package com.lostandfound.ui;
 // Comp 390
 // Browse listings page where users can browse their lost and found items
 
+import com.lostandfound.controller.ControllerFrame;
 import com.lostandfound.model.Post;
 import com.lostandfound.model.User;
+import com.lostandfound.model.UserSession;
+import com.lostandfound.services.PostService;
+import com.lostandfound.services.UserService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,65 +16,76 @@ import java.util.List;
 
 public class BrowseListings extends JPanel {
     private final ControllerFrame controls;
-    private final List<Post> allPosts;
+    private List<Post> allPosts;
+
+    private final JPanel categoryPanel;
     private final JPanel searchPanel;
+    private final JPanel listModel;
+    private final JPanel listingsPanel;
+    private final JPanel headerPanel;
+    private final JPanel footerPanel;
+    private final JPanel addPostPanel;
 
-    private JPanel listModel;
-    private JPanel listingsPanel;
-    private JPanel headerPanel;
-    private JPanel footerPanel;
-    private JPanel addPostPanel;
-    private JPanel centerTitle;
+    private final Font myFont = new Font("Tahoma", Font.PLAIN, 20);
+    private final JScrollPane scrollPane;
 
-    private Font myFont = new Font("Tahoma", Font.PLAIN, 20);
-    private JScrollPane scrollPane;
+    private final JButton logoutButton;
+    private final JButton electronicsButton;
+    private final JButton accessoriesButton;
+    private final JButton clothingsButton;
+    private final JButton bagsButton;
+    private final JButton allButton;
+    private final JButton createPostButton;
+    private final JButton searchButton;
 
-    private JButton logout;
-    private JButton electronicsButton;
-    private JButton accessoriesButton;
-    private JButton clothingsButton;
-    private JButton bagsButton;
-    private JButton allButton;
-    private JButton createPost;
+    private final JTextField searchField;
+    private final JLabel searchLabel;
 
+    private final PostService postService;
+    private final UserService userService;
     private User user;
     private List<PostComponent> postComps;
 
+    private String currentCategory;
+    private String currentKeyword;
+
 
     // Turning BrowseListings into a panel to work with controller Frame
-    public BrowseListings(ControllerFrame controller, List<Post> posts) {
+    public BrowseListings(ControllerFrame controller, UserService userService, PostService postService) {
         // Set up of main panel
         setLayout(new GridBagLayout());
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Initialization
-        JLabel title = new JLabel("Campus Lost & Found");
+        this.currentCategory = "All";
+        this.currentKeyword = null;
 
         this.controls = controller;
-        this.allPosts = posts;
+        this.postService = postService;
+        this.userService = userService;
         this.postComps = new ArrayList<>();
 
-        headerPanel = new JPanel();
-        searchPanel = new JPanel(new GridBagLayout());
+        headerPanel = new JPanel(new BorderLayout(10, 10));
+        searchPanel = new JPanel(new BorderLayout(5, 0));
+        categoryPanel = new JPanel(new GridBagLayout());
         listingsPanel = new JPanel(new GridLayout(0, 3, 10, 10)); // allows dynamic sizing with auto sorting, 3 across and infinite down
         listModel = new JPanel(new GridBagLayout());
         scrollPane = new JScrollPane(listingsPanel);
         footerPanel = new JPanel(new GridBagLayout());
 
-        // Overlay layout lets title be centered while the button is all the way to the right
-        headerPanel.setLayout(new OverlayLayout(headerPanel));
+        // Search bar
+        searchField = new JTextField();
+        searchLabel = new JLabel("Search: ");
 
-        centerTitle = new JPanel(new GridBagLayout());
         addPostPanel = new JPanel(new GridBagLayout());
 
-
-        logout = new JButton("Log Out");
+        searchButton = new JButton("Search");
+        createPostButton = new JButton("+");
         accessoriesButton = new JButton("Accessories");
         electronicsButton = new JButton("Electronics");
         clothingsButton = new JButton("Clothing");
         bagsButton = new JButton("Bags");
         allButton = new JButton("All");
-        createPost = new JButton("+");
+        logoutButton = new JButton("Log Out");
 
         listModel.add(accessoriesButton, constraints(0, 0, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
         listModel.add(electronicsButton, constraints(0, 1, 1, 0,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
@@ -79,7 +94,8 @@ public class BrowseListings extends JPanel {
         listModel.add(allButton, constraints(0, 4, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
 
         // Action Listener to switch panels
-        logout.addActionListener(event -> {
+        logoutButton.addActionListener(event -> {
+            UserSession.getInstance().logout();
             controls.showLogin();
         });
 
@@ -104,16 +120,23 @@ public class BrowseListings extends JPanel {
             filterByCategory("All");
         });
 
-        // Set up of centered title
-        centerTitle.setOpaque(false);
-        centerTitle.add(title, constraints(0,0,1,1,0,GridBagConstraints.NONE, GridBagConstraints.CENTER));
+        searchField.addActionListener(event -> {
+            makeSearch();
+        });
+        searchButton.addActionListener(event -> {
+            makeSearch();
+        });
+
 
         // Set up of right most button
         addPostPanel.setOpaque(false);
-        addPostPanel.add(createPost, constraints(0,0,1,1,0, GridBagConstraints.NONE, GridBagConstraints.EAST));
+        addPostPanel.add(createPostButton, constraints(0,0,1,1,0, GridBagConstraints.NONE, GridBagConstraints.EAST));
 
-        headerPanel.add(centerTitle);
-        headerPanel.add(addPostPanel);
+        searchPanel.add(searchLabel, BorderLayout.WEST);
+        searchPanel.add(searchField, BorderLayout.CENTER);
+        searchPanel.add(searchButton, BorderLayout.EAST);
+        headerPanel.add(searchPanel, BorderLayout.CENTER);
+        headerPanel.add(addPostPanel, BorderLayout.EAST);
 
         // Fix the cooked scrolling
         scrollPane.getVerticalScrollBar().setUnitIncrement(25);
@@ -123,8 +146,8 @@ public class BrowseListings extends JPanel {
 
         // add logout to the footerPanel and give it a weight y
         // footerPanel forces logout to be at the far right even if the cell its in is weirdly sized
-        footerPanel.add(logout, constraints(0,0,1,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_END));
-        searchPanel.add(listModel);
+        footerPanel.add(logoutButton, constraints(0,0,1,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_END));
+        categoryPanel.add(listModel);
 
         // Add everything to the main panel
         // add(headerPanel, BorderLayout.NORTH);
@@ -138,7 +161,7 @@ public class BrowseListings extends JPanel {
 
         // Add the search panel to the left area
         // Search panel should be long and be at the left of the page
-        add(searchPanel, constraints(0,1,1,0,0,GridBagConstraints.NONE, GridBagConstraints.NORTHWEST));
+        add(categoryPanel, constraints(0,1,1,0,0,GridBagConstraints.NONE, GridBagConstraints.NORTHWEST));
 
         // Add the scroll pane below the header (includes the posts)
         // Should be long and wide
@@ -153,11 +176,14 @@ public class BrowseListings extends JPanel {
         add(footerPanel, constraints(0,2,3,1,0,GridBagConstraints.BOTH,GridBagConstraints.SOUTH));
 
         // Fonts
-        title.setFont(myFont.deriveFont(Font.BOLD, 24));
-        logout.setFont(myFont);
+        logoutButton.setFont(myFont);
 
-        // Adding posts
-        setPosts(posts);
+    }
+
+    private void makeSearch() {
+        String keyword = searchField.getText();
+        currentKeyword = keyword;
+        setPosts(postService.search(keyword));
     }
 
     private void filterByCategory(String category) {
@@ -175,6 +201,13 @@ public class BrowseListings extends JPanel {
             }
         }
         setPosts(filteredPosts);
+    }
+
+    /**
+     * Search by using both keyword and category
+     */
+    private void applyFilter(){
+        //postService.filterPost(currentKeyword, currentCategory);
     }
 
     public void setPosts(List<Post> posts) {
@@ -198,12 +231,12 @@ public class BrowseListings extends JPanel {
 //                postComps.add(pc);
 //                listingsPanel.add(pc);
 //            }
-
+            User currentUser = UserSession.getInstance().getCurrentUser();
             for(Post post: posts){
                 PostComponent pc = new PostComponent(post, controls);
 
                 // set the user for the view claimants button
-                pc.setUser(user);
+                pc.setUser(currentUser);
                 pc.setClaimButton();
 
                 // add the comp
@@ -243,19 +276,31 @@ public class BrowseListings extends JPanel {
         return gbc;
     }
 
-    // Helper method to add the + button if the user is an admin
- /*   public void setAdmin(boolean isAdmin){
-        // avoid adding it twice if somehow its still there
+    /**
+     * We add the posts only after the user has logged in
+     */
+    public void loadPosts() {
+        this.allPosts = postService.findAll();
+        setPosts(allPosts);
+    }
+
+    /**
+     * This will handle what component can be seen by an admin
+     */
+    public void updateAdminVisibility() {
+        User user = UserSession.getInstance().getCurrentUser();
+
+        boolean isAdmin = (user != null && user.isAdmin());
         addPostPanel.setVisible(isAdmin);
 
-        // Rebuild
         headerPanel.revalidate();
         headerPanel.repaint();
 
         this.revalidate();
         this.repaint();
-    }*/
+    }
 
+    // todo: update to work with userSession
     public void setUser(User user){
         // assign the current user
         this.user = user;
@@ -267,7 +312,7 @@ public class BrowseListings extends JPanel {
         }
 
         // build or rebuild depending on the user role
-        addPostPanel.setVisible(user.getAdmin());
+        addPostPanel.setVisible(user.isAdmin());
 
         headerPanel.revalidate();
         headerPanel.repaint();
@@ -276,8 +321,5 @@ public class BrowseListings extends JPanel {
         this.repaint();
     }
 
-    public User getUser(){
-        return this.user;
-    }
 }
 

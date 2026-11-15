@@ -3,18 +3,18 @@ package com.lostandfound;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.lostandfound.db.Database;
 import com.lostandfound.db.DatabaseInitializer;
-import com.lostandfound.model.Post;
 import com.lostandfound.repo.DbPostsRepository;
 import com.lostandfound.repo.DbUserRepository;
 import com.lostandfound.repo.PostRepository;
 import com.lostandfound.repo.UserRepository;
+import com.lostandfound.services.ClaimService;
+import com.lostandfound.services.PostService;
 import com.lostandfound.services.UserService;
-import com.lostandfound.ui.ControllerFrame;
+import com.lostandfound.controller.ControllerFrame;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -30,12 +30,13 @@ public class Main {
                 UserRepository userRepo = new DbUserRepository(db);
                 DbPostsRepository postRepo = new DbPostsRepository(db);
                 UserService userService = new UserService(userRepo);
+                PostService postService = new PostService(postRepo);
+                ClaimService claimService = new ClaimService(postRepo);
 
-                // Initialize the posts list by using findAll method
-                List<Post> posts = postRepo.findAll();
+                postService.updateExpiredStatus();
 
                 try {
-                    new ControllerFrame(userService, posts, postRepo);
+                    new ControllerFrame(userService, postService, claimService);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

@@ -14,18 +14,16 @@ import java.util.List;
 public class ViewClaimants extends JDialog {
     private final Post post;
     private final List<Claim> claimsList;
-    private final DbPostsRepository postRepo;
     private final ClaimService claimServ;
     private Claim claim;
     private JPanel claimsPanel;
 
 
-    public ViewClaimants(Post post, DbPostsRepository postRepo, ClaimService claimServ) {
+    public ViewClaimants(Post post, ClaimService claimServ) {
         this.post = post;
-        this.postRepo = postRepo;
         this.claimServ = claimServ;
 
-        this.claimsList = this.postRepo.findClaims(post.getProductID());
+        this.claimsList = this.claimServ.getClaimsForPost(post);
         this.claimsPanel = new JPanel(new GridBagLayout());
         this.claim = null;
     }

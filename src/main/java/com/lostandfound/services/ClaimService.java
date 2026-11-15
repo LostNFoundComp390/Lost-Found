@@ -5,7 +5,6 @@ import com.lostandfound.model.Post;
 import com.lostandfound.model.User;
 import com.lostandfound.repo.DbPostsRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ClaimService {
@@ -13,6 +12,10 @@ public class ClaimService {
 
     public ClaimService(DbPostsRepository myRepo) {
         this.myRepo = myRepo;
+    }
+
+    public List<Claim> getClaimsForPost(Post post) {
+        return myRepo.findClaims(post.getProductID());
     }
 
     // helper method to move as much claim logic out of controller frame as I find possible
@@ -23,7 +26,7 @@ public class ClaimService {
         }
 
         // check admin status
-        if (!user.getAdmin()) {
+        if (!user.isAdmin()) {
             // check if the post has been claimed
 
             if (post.getStatus().equalsIgnoreCase("claimed")) {

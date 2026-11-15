@@ -68,6 +68,7 @@ public class DatabaseInitializer {
                 date_listed TEXT,
                 expiration_date TEXT,
                 value_status TEXT,
+                is_expired INTEGER DEFAULT 0,
                 user_id INTEGER NOT NULL,
                 claimer_id INTEGER,
                 FOREIGN KEY(user_id) REFERENCES Users(user_id),
@@ -157,17 +158,21 @@ public class DatabaseInitializer {
     private static void addMockPosts(Connection conn){
 
         String sql = """
-            INSERT OR IGNORE INTO Listings (listing_id, product_name, photo, description, location, category, status, date_listed, expiration_date, value_status, user_id) VALUES
-            (101, 'Water Bottle', 'hydroflask.jpg', 'Black Hydroflask', 'DMF', 'Accessories', 'Unclaimed', '2026-09-28', '2026-10-28', 'Standard', 3),
-            (102, 'Airpods', 'airpods.jpg', 'White AirPods Pro 3rd Generation', 'Burnell Hall', 'Electronics', 'Unclaimed', '2026-10-01', '2026-11-01', 'High', 1),
-            (103, 'Laptop', 'macbook.jpg', 'Blue Apple MacBook Air', 'Maxwell Library', 'Electronics', 'Claimed', '2026-10-03', '2026-11-03', 'High', 7),
-            (104, 'Wireless headphones', 'headphones.jpg', 'Pink noise canceling overear headphones', 'RSU', 'Electronics', 'Unclaimed', '2026-10-09', '2027-01-01', 'High', 1),
-            (105, 'Vintage leather jacket', 'jacket.jpg', 'Genuine brown leather and men''s medium', 'Bear''s Den RSU', 'Clothing', 'Unclaimed', '2026-06-13', '2026-10-15', 'Standard', 3),
-            (106, 'Canvas tote bag', 'canvas_tote_bag.jpg', 'Large cream-colored canvas tote bag with navy-blue shoulder straps and a small embroidered university logo near the bottom corner. The bag contains a spiral notebook with handwritten class notes, a reusable stainless-steel coffee cup, several pens, and a black zippered pouch. It was found resting underneath a table near a study area.', 'Maxwell Library', 'Accessories', 'Unclaimed', '2026-10-09', '2026-11-09', 'Standard', 4),
-            (108, 'Winter coat', 'winter_coat.jpg', 'Dark green insulated winter coat with a hood trimmed in faux fur, two large front pockets with snap closures, and a silver zipper that runs down the center. A pair of knit gloves was found inside the left pocket. The coat appears lightly worn and has no visible personal identification on the outside.', 'Hunt Hall', 'Clothing', 'Unclaimed', '2026-10-07', '2027-01-07', 'Standard', 3),
-            (109, 'Black backpack', 'black_backpack.jpg', 'Medium-sized black backpack with padded shoulder straps, a front organizer pocket, two mesh side pockets, and a reflective strip across the lower front panel. Inside are several empty folders, a charging cable, a calculator, and a notebook with no clearly visible owner name. The bag was left near a seating area.', 'Crimson Hall', 'Bags', 'Unclaimed', '2026-10-01', '2026-11-01', 'Low', 7),
-            (110, 'Black sunglasses', 'blacksunglasses.jpg', 'Standard cheap pair of sunglasses.','RSU','Accessories','Unclaimed','2026-12-06','2027-01-06','Low',3);
+            INSERT OR IGNORE INTO Listings (
+                listing_id, product_name, photo, description, location, category, 
+                status, date_listed, expiration_date, value_status, is_expired, user_id
+            ) VALUES
+            (101, 'Water Bottle', 'hydroflask.jpg', 'Black Hydroflask', 'DMF', 'Accessories', 'Unclaimed', '2026-09-28', '2026-10-28', 'Standard', 0, 3),
+            (102, 'Airpods', 'airpods.jpg', 'White AirPods Pro 3rd Generation', 'Burnell Hall', 'Electronics', 'Unclaimed', '2026-10-01', '2026-11-01', 'High', 0, 1),
+            (103, 'Laptop', 'macbook.jpg', 'Blue Apple MacBook Air', 'Maxwell Library', 'Electronics', 'Claimed', '2026-10-03', '2026-11-03', 'High', 0, 7),
+            (104, 'Wireless headphones', 'headphones.jpg', 'Pink noise canceling overear headphones', 'RSU', 'Electronics', 'Unclaimed', '2026-10-09', '2027-01-01', 'High', 0, 1),
+            (105, 'Vintage leather jacket', 'jacket.jpg', 'Genuine brown leather and men''s medium', 'Bear''s Den RSU', 'Clothing', 'Unclaimed', '2026-06-13', '2026-10-15', 'Standard', 0, 3),
+            (106, 'Canvas tote bag', 'canvas_tote_bag.jpg', 'Large cream-colored canvas tote bag with navy-blue shoulder straps and a small embroidered university logo near the bottom corner. The bag contains a spiral notebook with handwritten class notes, a reusable stainless-steel coffee cup, several pens, and a black zippered pouch. It was found resting underneath a table near a study area.', 'Maxwell Library', 'Accessories', 'Unclaimed', '2026-10-09', '2026-11-09', 'Standard', 0, 4),
+            (108, 'Winter coat', 'winter_coat.jpg', 'Dark green insulated winter coat with a hood trimmed in faux fur, two large front pockets with snap closures, and a silver zipper that runs down the center. A pair of knit gloves was found inside the left pocket. The coat appears lightly worn and has no visible personal identification on the outside.', 'Hunt Hall', 'Clothing', 'Unclaimed', '2026-10-07', '2027-01-07', 'Standard', 0, 3),
+            (109, 'Black backpack', 'black_backpack.jpg', 'Medium-sized black backpack with padded shoulder straps, a front organizer pocket, two mesh side pockets, and a reflective strip across the lower front panel. Inside are several empty folders, a charging cable, a calculator, and a notebook with no clearly visible owner name. The bag was left near a seating area.', 'Crimson Hall', 'Bags', 'Unclaimed', '2026-10-01', '2026-11-01', 'Low', 0, 7),
+            (110, 'Black sunglasses', 'blacksunglasses.jpg', 'Standard cheap pair of sunglasses.','RSU','Accessories','Unclaimed','2026-12-06','2027-01-06','Low', 0, 3);
            """;
+
 
 
         try (Statement st = conn.createStatement()) {

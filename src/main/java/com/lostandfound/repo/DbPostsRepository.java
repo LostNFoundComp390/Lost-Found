@@ -78,7 +78,7 @@ public class DbPostsRepository implements PostRepository{
 
     // Search the DB for a single post based on the ID
     // Needed this for debug
-    public Post findListing(long ID){
+    public Post findById(long ID){
         // Initialization
         String sql = "SELECT * FROM Listings WHERE listing_id = ?";
         Post post = new Post();
@@ -86,9 +86,7 @@ public class DbPostsRepository implements PostRepository{
         try(Connection conn = db.getConnection()){
             // Compile
             PreparedStatement ps = conn.prepareStatement(sql);
-            // Insert the ID
             ps.setLong(1, ID);
-            // Try to query
             try(ResultSet rs = ps.executeQuery()){
                 while(rs.next()){
                     post = rowToPost(rs);
@@ -103,29 +101,60 @@ public class DbPostsRepository implements PostRepository{
 
     // Searches for all posts
     public List<Post> findAll(){
-        // Initialization
-        String sql = "SELECT * FROM Listings";
+        String sql = """
+            SELECT * FROM Listings
+            """;
         List<Post> posts = new ArrayList<>();
 
-        // Connect to the db
-        try (Connection conn = db.getConnection()) {
-            // Compile sql
-            PreparedStatement ps = conn.prepareStatement(sql);
-            // Try to query
-            try(ResultSet rs = ps.executeQuery()){
-                while(rs.next()) {
-                    // Create new post
-                    Post post = rowToPost(rs);
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
-                    // Add posts to the list
-                    posts.add(post);
-                }
+            while (rs.next()) {
+                posts.add(rowToPost(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error retrieving posts", e);
         }
-        // Todo: handle not found post
+
         return posts;
+    }
+
+    public List<Post> findAllNonExpired(){
+        String sql = """
+            SELECT * FROM Listings
+            WHERE is_expired = 0
+            """;
+        List<Post> posts = new ArrayList<>();
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                posts.add(rowToPost(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error retrieving non-expired posts", e);
+        }
+
+        return posts;
+    }
+
+    @Override
+    public void updateExpiredStatus() {
+        String sql = """
+            UPDATE Listings SET is_expired = 1 WHERE expiration_date <= date('now') AND is_expired = 0;
+            """;
+
+        try(Connection conn = db.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update expired post status", e);
+        }
     }
 
     public List<Post> searchCategory(String category) {
@@ -154,6 +183,75 @@ public class DbPostsRepository implements PostRepository{
             throw new RuntimeException(e);
         }
         return posts;
+    }
+
+    @Override
+    public List<Post> searchByKeyword(String keyword) {
+        String pattern = "%" + keyword + "%";
+        String sql = """
+            SELECT *
+            FROM Listings
+            WHERE (product_name like ? OR description like ?)
+            """;
+
+
+        List<Post> posts = new ArrayList<>();
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, pattern);
+            ps.setString(2, pattern);
+
+            try(ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Post post = rowToPost(rs);
+
+                    posts.add(post);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error searching posts by keyword", e);
+        }
+        return posts;
+
+    }
+
+    @Override
+    public List<Post> searchByKeywordNonExpired(String keyword) {
+        String pattern = "%" + keyword + "%";
+        String sql = """
+            SELECT *
+            FROM Listings
+            WHERE (is_expired = 0) AND (product_name like ? OR description like ?)
+            """;
+
+
+        List<Post> posts = new ArrayList<>();
+
+        // Try to connect to the db
+        try (Connection conn = db.getConnection();
+             // Compile sql query
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            // Insert the category the user selected to sort by
+            ps.setString(1, pattern);
+            ps.setString(2, pattern);
+            // Try to actually query
+            try(ResultSet rs = ps.executeQuery()) {
+                // While there are still rows to search
+                while (rs.next()) {
+                    // Create a new post object with the helper method
+                    Post post = rowToPost(rs);
+
+                    // Add posts to the list
+                    posts.add(post);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error searching non-expired posts by keyword", e);
+        }
+        return posts;
+
     }
 
     // Helper method for turning rows into a Post

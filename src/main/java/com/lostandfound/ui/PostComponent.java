@@ -1,12 +1,11 @@
 package com.lostandfound.ui;
 
+import com.lostandfound.controller.ControllerFrame;
 import com.lostandfound.model.Post;
 import com.lostandfound.model.User;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class PostComponent extends JPanel {
     // Main components
@@ -243,7 +242,7 @@ public class PostComponent extends JPanel {
             return;
         }
 
-        if(this.user.getAdmin()){
+        if(this.user.isAdmin()){
             this.claim.setText("View Claimants");
         }else{
             this.claim.setText("Yours?");
