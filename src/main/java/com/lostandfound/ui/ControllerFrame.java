@@ -19,6 +19,7 @@ public class ControllerFrame extends JFrame{
     private JPanel mainPanel;
     private BrowseListings browsingPanel;
     private LoginUI loginPanel;
+    private AccountSettings accountSettingsPanel;
 
     private User user;
     private DbPostsRepository postRepo;

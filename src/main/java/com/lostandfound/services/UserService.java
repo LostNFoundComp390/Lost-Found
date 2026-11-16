@@ -51,7 +51,7 @@ public class UserService {
      * @param email
      * @throws RuntimeException if the user already exists
      */
-    void register(String role, String username, String password, String email){
+   public void register(String role, String username, String password, String email){
 
         if (!repo.exists(username)) {
             String hashedPassword = hashPassword(password);

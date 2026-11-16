@@ -7,10 +7,13 @@ import com.lostandfound.model.User;
 
 import javax.swing.*;
 import java.awt.*;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BrowseListings extends JPanel {
+public class BrowseListings extends JPanel implements ActionListener {
     private final ControllerFrame controls;
     private final List<Post> allPosts;
     private final JPanel searchPanel;
@@ -32,6 +35,7 @@ public class BrowseListings extends JPanel {
     private JButton bagsButton;
     private JButton allButton;
     private JButton createPost;
+    private JButton accountSettingsButton;
 
     private User user;
 
@@ -69,17 +73,20 @@ public class BrowseListings extends JPanel {
         bagsButton = new JButton("Bags");
         allButton = new JButton("All");
         createPost = new JButton("+");
+        accountSettingsButton = new JButton("Account Settings");
 
         listModel.add(accessoriesButton, constraints(0, 0, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
         listModel.add(electronicsButton, constraints(0, 1, 1, 0,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
         listModel.add(clothingsButton, constraints(0, 2, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
         listModel.add(bagsButton, constraints(0, 3, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
         listModel.add(allButton, constraints(0, 4, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-
         // Action Listener to switch panels
         logout.addActionListener(event -> {
             controls.showLogin();
         });
+
+        accountSettingsButton.addActionListener(this);
+
 
         // action Listener for listing categories
         accessoriesButton.addActionListener(event -> {
@@ -122,6 +129,8 @@ public class BrowseListings extends JPanel {
         // add logout to the footerPanel and give it a weight y
         // footerPanel forces logout to be at the far right even if the cell its in is weirdly sized
         footerPanel.add(logout, constraints(0,0,1,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_END));
+        footerPanel.add(accountSettingsButton, constraints(0,0,1,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
+
         searchPanel.add(listModel);
 
         // Add everything to the main panel
@@ -156,6 +165,14 @@ public class BrowseListings extends JPanel {
 
         // Adding posts
         setPosts(posts);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == accountSettingsButton) {
+            new AccountSettings(controls);
+            controls.setVisible(false);//closes Login window
+        }
     }
 
     private void filterByCategory(String category) {
