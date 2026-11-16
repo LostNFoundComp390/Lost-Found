@@ -2,9 +2,6 @@
 package com.lostandfound.services;
 import com.lostandfound.db.Database;
 import com.lostandfound.repo.DbUserRepository;
-import com.lostandfound.ui.ControllerFrame;
-import com.lostandfound.ui.CreateAccount;
-
 
 public class FieldChecks
 {
@@ -106,21 +103,21 @@ public class FieldChecks
     //checks to see if email is connected to a username
     //public boolean emailConnectedToUsername
 
-//    public boolean isEmailSyntaxCorrect(String email)
-//    {
-//
-//        enteredEmail = email;
-//        boolean isEmailSyntaxRight = false;
-//        int lengthOfEmail = enteredEmail.length();
-//
-//        if(enteredEmail.substring((lengthOfEmail - 19), (lengthOfEmail - 1)).equals("@student.bridgew.edu"))
-//            isEmailSyntaxRight = true;
-//        else
-//            isEmailSyntaxRight = false;
-//
-//        return isEmailSyntaxRight;
+    //    public boolean isEmailSyntaxCorrect(String email)
+    //    {
+    //
+    //        enteredEmail = email;
+    //        boolean isEmailSyntaxRight = false;
+    //        int lengthOfEmail = enteredEmail.length();
+    //
+    //        if(enteredEmail.substring((lengthOfEmail - 19), (lengthOfEmail - 1)).equals("@student.bridgew.edu"))
+    //            isEmailSyntaxRight = true;
+    //        else
+    //            isEmailSyntaxRight = false;
+    //
+    //        return isEmailSyntaxRight;
 
-//    }
+    //    }
     //Checks to see if First Name textbox is empty
     public boolean isFirstNameFieldEmpty(String firstName)
     {
@@ -143,9 +140,3 @@ public class FieldChecks
     }//end isLastNameFieldEmpty
 
 }//end FieldChecks
-
-
-
-
-
-

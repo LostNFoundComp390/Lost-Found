@@ -1,15 +1,8 @@
 package com.lostandfound.ui;
-import com.lostandfound.db.Database;
-import com.lostandfound.model.User;
-import com.lostandfound.model.UserPublic;
-import com.lostandfound.repo.DbUserRepository;
-import com.lostandfound.repo.UserRepository;
-import com.lostandfound.services.FieldChecks;
-import com.lostandfound.services.UserService;
+import com.lostandfound.controller.ControllerFrame;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
 import javax.swing.*;
 
 public class AccountSettings extends JFrame   {
@@ -57,3 +50,4 @@ public class AccountSettings extends JFrame   {
 
 
 }
+
