@@ -85,40 +85,6 @@
             setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
 
-        /*public boolean requestClaim(Post post){
-            // escape if there is no user...:(
-            // means something went real wrong
-            if(user == null){
-                JOptionPane.showMessageDialog(this, "you MUST be logged in! >:(");
-                return false;
-            }
-
-            // Allow view claimant stuff
-            if(user.getAdmin()){
-                // JOptionPane.showMessageDialog(this, "You cannot make claims!");
-
-                return false;
-            }
-
-            // make sure the post isn't already claimed
-            if(post.getStatus().equalsIgnoreCase("claimed")){
-                JOptionPane.showMessageDialog(this, "post has been claimed!");
-                return false;
-            }
-
-            // If we've made it here then everything is okay and normal
-            post.setStatus("pending");
-
-            // update the db
-            // postRepo.updateClaim(post);
-            // post.setClaimerID(user.getUserID());
-
-
-            JOptionPane.showMessageDialog(this, "Request sent! :)");
-            return true;
-
-        }*/
-
         public boolean claimButton(Post post){
             User currentUser = UserSession.getInstance().getCurrentUser();
 
