@@ -152,48 +152,6 @@
                 }
             }
 
-            // check the user role
-
-/*        if(this.user == null){
-            JOptionPane.showMessageDialog(this, "you MUST be logged in! >:(");
-            return false;
-        }
-
-        // check the claim status
-        if(post.getStatus().equalsIgnoreCase("claimed")){
-            JOptionPane.showMessageDialog(this, "This item has recently been claimed!");
-            return false;
-        }
-
-        // check the admin status
-        if(user.getAdmin()){
-            // will have to do the view claimant stuff
-            List<Claim> claims = postRepo.findClaims(post.getProductID());
-
-            return false;
-        }
-
-        // If we've made it here then the user is allowed to submit a claim
-        // Try to create the claim
-        try{
-            boolean created = postRepo.createClaim(post.getProductID(), user.getUserID());
-
-            // The claim failed bcuz the user already requested it
-            if (!created){
-                JOptionPane.showMessageDialog(this, "You have already requested!");
-                return false;
-            }
-
-            // The claim succeeded otherwise
-            JOptionPane.showMessageDialog(this, "Request sent!");
-            return true;
-        } catch (RuntimeException e) {
-            // proper error handling to satisfy sprint 4 req
-            e.printStackTrace();
-
-            JOptionPane.showMessageDialog(this,"Could not save your request.","Database Unreachable", JOptionPane.ERROR_MESSAGE);
-        }*/
-
             // this allows users to click submit claim again if their claim failed and allows admins to always do view claimants
             return false;
         }
