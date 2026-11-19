@@ -218,12 +218,12 @@ public class DbPostsRepository implements PostRepository{
     }
 
     @Override
-    public List<Post> searchByKeywordNonExpired(String keyword) {
+    public List<Post> searchByKeywordNonExpiredUnclaimed(String keyword) {
         String pattern = "%" + keyword + "%";
         String sql = """
             SELECT *
             FROM Listings
-            WHERE (is_expired = 0) AND (product_name like ? OR description like ?)
+            WHERE (is_expired = 0) AND (product_name like ? OR description like ?) AND status <> 'claimed'
             """;
 
 

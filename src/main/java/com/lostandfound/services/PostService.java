@@ -29,7 +29,7 @@ public class PostService {
         }else{
             return isAdmin
                 ? postRepo.searchByKeyword(keyword)
-                : postRepo.searchByKeywordNonExpired(keyword);
+                : postRepo.searchByKeywordNonExpiredUnclaimed(keyword);
         }
     }
 

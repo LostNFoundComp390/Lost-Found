@@ -32,7 +32,7 @@ public interface PostRepository {
      */
     List<Post> searchCategory(String category);
 
-    List<Post> searchByKeywordNonExpired(String keyword);
+    List<Post> searchByKeywordNonExpiredUnclaimed(String keyword);
 
     List<Post> searchByKeyword(String keyword);
 
