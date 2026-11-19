@@ -1,11 +1,11 @@
 package com.lostandfound.ui;
 
+import com.lostandfound.controller.ControllerFrame;
 import com.lostandfound.model.Post;
+import com.lostandfound.model.User;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class PostComponent extends JPanel {
     // Main components
@@ -19,6 +19,8 @@ public class PostComponent extends JPanel {
     private final JButton delete = new JButton("Delete");
     private String description;
     private boolean expanded = false;
+
+    private User user;
     private ControllerFrame control;
 
     public PostComponent(Post post, ControllerFrame controller){
@@ -71,6 +73,10 @@ public class PostComponent extends JPanel {
                 }
             }
         }
+        // change appearance based on user role
+        setClaimButton();
+
+
         // prep the header container
         secondHeader.add(categoryLabel, constraints(0,0,1,0,GridBagConstraints.NONE,GridBagConstraints.LINE_START));
         secondHeader.add(locationLabel,constraints(1,0,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.LINE_START));
@@ -178,7 +184,7 @@ public class PostComponent extends JPanel {
         setExpanded(!expanded);
     }
     private void toggleClaim(){
-        if(control != null && control.requestClaim(this.post)){
+        if(control != null && control.claimButton(this.post)){
             claim.setText("Requested!");
             claim.setEnabled(false);
         }
@@ -244,6 +250,30 @@ public class PostComponent extends JPanel {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
+
+    public void setUser(User user){
+        claim.setEnabled(true);
+        this.user = user;
+    }
+
+    // change button
+    public void setClaimButton(){
+        //
+        if(this.user == null){
+            return;
+        }
+
+        if(this.user.isAdmin()){
+            this.claim.setText("View Claimants");
+        }else{
+            this.claim.setText("Yours?");
+        }
+
+        // update UI
+        this.revalidate();
+        this.repaint();
+    }
+  
 
 
     //    Test main

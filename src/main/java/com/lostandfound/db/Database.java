@@ -15,6 +15,10 @@ public class Database {
         return new Database("jdbc:sqlite:lost-found.db");
     }
 
+    // create a test db so my tests stop affecting the real thing
+    public static Database test(String dbPath) {
+        return new Database("jdbc:sqlite:" + dbPath);
+    }
     public Connection getConnection() throws SQLException {
         Connection c = DriverManager.getConnection(jdbcUrl);
         c.createStatement().execute("PRAGMA foreign_keys = ON");
