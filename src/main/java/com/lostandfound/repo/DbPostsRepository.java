@@ -254,15 +254,38 @@ public class DbPostsRepository implements PostRepository{
 
     }
 
-    public List<Post> searchByLocation(String location){
+    public List<Post> searchByLocationNonExpiredUnclaimed(String location){
+        // Init
+        String locationPattern = "%" + location.toUpperCase() + "%";
         String sql = """
-                
+                SELECT * 
+                FROM Listings 
+                WHERE (is_expired = 0) 
+                    AND UPPER(location) LIKE ? 
+                    AND LOWER(status) <> 'claimed'
                 """;
         List<Post> posts = new ArrayList<>();
+        try(Connection conn = db.getConnection()){
+            // prepare sql
+            PreparedStatement ps = conn.prepareStatement(sql);
 
+            // insert var
+            ps.setString(1,locationPattern);
+            try(ResultSet rs = ps.executeQuery()){
+                while(rs.next()){
+                    // create new object
+                    Post post = rowToPost(rs);
 
+                    // build the array
+                    posts.add(post);
+                }
+            }
 
+        } catch (SQLException e) {
+            throw new RuntimeException("Error searching non-expired and unclaimed posts by location",e);
+        }
 
+        // send back up the array
         return posts;
     }
 

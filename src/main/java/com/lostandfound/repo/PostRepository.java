@@ -36,7 +36,10 @@ public interface PostRepository {
 
     List<Post> searchByKeyword(String keyword);
 
+    List<Post> searchByLocationNonExpiredUnclaimed(String location);
+
     List<Post> findAllNonExpiredUnclaimed();
 
     void updateExpiredStatus();
+
 }
