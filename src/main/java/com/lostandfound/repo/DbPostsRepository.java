@@ -120,10 +120,10 @@ public class DbPostsRepository implements PostRepository{
         return posts;
     }
 
-    public List<Post> findAllNonExpired(){
+    public List<Post> findAllNonExpiredUnclaimed(){
         String sql = """
             SELECT * FROM Listings
-            WHERE is_expired = 0
+            WHERE is_expired = 0 AND status <> 'claimed'
             """;
         List<Post> posts = new ArrayList<>();
 
@@ -254,6 +254,46 @@ public class DbPostsRepository implements PostRepository{
 
     }
 
+    public List<Post> searchByLocation(String location){
+        String sql = """
+                
+                """;
+        List<Post> posts = new ArrayList<>();
+
+
+
+
+        return posts;
+    }
+
+
+    public void updateListingStatus(Post post) {
+        String sql = "UPDATE Listings SET status = ?, claimer_id = ? WHERE listing_id = ?";
+
+        // Try to connect to the db
+        try (Connection conn = db.getConnection();
+             // compile SQL
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            // assign values
+            ps.setString(1, post.getStatus());
+
+            if (post.getClaimerID() > 0) {
+                // assign the user
+                ps.setInt(2, post.getClaimerID());
+            } else {
+                // or set null if there is no claimant somehow
+                ps.setNull(2, Types.INTEGER);
+            }
+
+            ps.setLong(3, post.getProductID());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     // Helper method for turning rows into a Post
     private Post rowToPost(ResultSet rs) throws SQLException{
         // Initialization
@@ -308,31 +348,6 @@ public class DbPostsRepository implements PostRepository{
         }
     }
 
-    public void updateListingStatus(Post post) {
-        String sql = "UPDATE Listings SET status = ?, claimer_id = ? WHERE listing_id = ?";
-
-        // Try to connect to the db
-        try (Connection conn = db.getConnection();
-             // compile SQL
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            // assign values
-            ps.setString(1, post.getStatus());
-
-            if (post.getClaimerID() > 0) {
-                // assign the user
-                ps.setInt(2, post.getClaimerID());
-            } else {
-                // or set null if there is no claimant somehow
-                ps.setNull(2, Types.INTEGER);
-            }
-
-            ps.setLong(3, post.getProductID());
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public List<Claim> findClaims(long listingID){
         // init return var

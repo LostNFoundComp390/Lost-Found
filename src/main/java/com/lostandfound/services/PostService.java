@@ -17,7 +17,7 @@ public class PostService {
         boolean isAdmin = UserSession.getInstance().getCurrentUser().isAdmin();
         return isAdmin
             ? postRepo.findAll()
-            : postRepo.findAllNonExpired();
+            : postRepo.findAllNonExpiredUnclaimed();
     }
 
     public List<Post> search(String keyword) {
@@ -25,7 +25,7 @@ public class PostService {
         if(keyword.isBlank()) {
             return isAdmin
                 ? postRepo.findAll()
-                : postRepo.findAllNonExpired();
+                : postRepo.findAllNonExpiredUnclaimed();
         }else{
             return isAdmin
                 ? postRepo.searchByKeyword(keyword)
