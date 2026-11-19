@@ -38,4 +38,12 @@ public class PostService {
         postRepo.updateExpiredStatus();
 
     }
+
+    public void updatePost(Post post){
+        postRepo.updatePost(post);
+    }
+
+    public void deletePost(long postID){
+        postRepo.deletePost(postID);
+    }
 }

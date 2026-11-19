@@ -29,12 +29,13 @@
         private LoginUI loginPanel;
 
         private final ClaimService claimServ;
-        private PostRepository postRepo;
+        private PostService postRepo;
         public ControllerFrame(UserService userService, PostService postService, ClaimService claimServ) throws IOException{
             // Initialization
             cardLayout = new CardLayout();
             mainPanel = new JPanel((cardLayout));
             this.claimServ = claimServ;
+            this.postRepo = postService;
 
 
             setTitle("Lost-Found");
