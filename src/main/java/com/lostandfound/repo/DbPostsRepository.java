@@ -117,10 +117,10 @@ public class DbPostsRepository implements PostRepository {
         return posts;
     }
 
-    public List<Post> findAllNonExpired(){
+    public List<Post> findAllNonExpiredUnclaimed(){
         String sql = """
             SELECT * FROM Listings
-            WHERE is_expired = 0
+            WHERE is_expired = 0 AND status <> 'claimed'
             """;
         List<Post> posts = new ArrayList<>();
 
@@ -205,12 +205,12 @@ public class DbPostsRepository implements PostRepository {
     }
 
     @Override
-    public List<Post> searchByKeywordNonExpired(String keyword) {
+    public List<Post> searchByKeywordNonExpiredUnclaimed(String keyword) {
         String pattern = "%" + keyword + "%";
         String sql = """
             SELECT *
             FROM Listings
-            WHERE (is_expired = 0) AND (product_name like ? OR description like ?)
+            WHERE (is_expired = 0) AND (product_name like ? OR description like ?) AND status <> 'claimed'
             """;
 
 
@@ -241,6 +241,41 @@ public class DbPostsRepository implements PostRepository {
 
     }
 
+    public List<Post> searchByLocationNonExpiredUnclaimed(String location){
+        // Init
+        String locationPattern = "%" + location.toUpperCase() + "%";
+        String sql = """
+                SELECT * 
+                FROM Listings 
+                WHERE (is_expired = 0) 
+                    AND UPPER(location) LIKE ? 
+                    AND LOWER(status) <> 'claimed'
+                """;
+        List<Post> posts = new ArrayList<>();
+        try(Connection conn = db.getConnection()){
+            // prepare sql
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            // insert var
+            ps.setString(1,locationPattern);
+            try(ResultSet rs = ps.executeQuery()){
+                while(rs.next()){
+                    // create new object
+                    Post post = rowToPost(rs);
+
+                    // build the array
+                    posts.add(post);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error searching non-expired and unclaimed posts by location",e);
+        }
+
+        // send back up the array
+        return posts;
+    }
+
     // Helper method for turning rows into a Post
     private Post rowToPost(ResultSet rs) throws SQLException{
         // Initialization
@@ -260,37 +295,6 @@ public class DbPostsRepository implements PostRepository {
         post.setLocation(rs.getString("location"));
 
         return post;
-    }
-
-    public boolean createClaim(long listingID, int userID){
-        // coalesce will turn a null value into '', even though there should be no nulls
-        // <> claimed will reject any claim attempts if the item is already claimed
-        String sql = """
-                INSERT INTO Claims (listing_id, user_id, status)
-                SELECT listing_id, ?, 'pending' FROM Listings WHERE
-                listing_id = ? 
-                    AND LOWER(COALESCE(status, '')) <> 'claimed'
-                ON CONFLICT(listing_id, user_id) DO NOTHING
-                """;
-
-        // connect to db
-        try (Connection conn = db.getConnection()){
-            // prep sql
-            PreparedStatement ps = conn.prepareStatement(sql);
-
-            // insert vars
-            ps.setInt(1, userID);
-            ps.setLong(2, listingID);
-
-            // return feedback based on if ps updates one and only one row
-            if(ps.executeUpdate() == 1){
-                return true;
-            }else{
-                return false;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void updateListingStatus(Post post) {
@@ -352,6 +356,37 @@ public class DbPostsRepository implements PostRepository {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, listingId);
             ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean createClaim(long listingID, int userID){
+        // coalesce will turn a null value into '', even though there should be no nulls
+        // <> claimed will reject any claim attempts if the item is already claimed
+        String sql = """
+                INSERT INTO Claims (listing_id, user_id, status)
+                SELECT listing_id, ?, 'pending' FROM Listings WHERE
+                listing_id = ? 
+                    AND LOWER(COALESCE(status, '')) <> 'claimed'
+                ON CONFLICT(listing_id, user_id) DO NOTHING
+                """;
+
+        // connect to db
+        try (Connection conn = db.getConnection()){
+            // prep sql
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            // insert vars
+            ps.setInt(1, userID);
+            ps.setLong(2, listingID);
+
+            // return feedback based on if ps updates one and only one row
+            if(ps.executeUpdate() == 1){
+                return true;
+            }else{
+                return false;
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
