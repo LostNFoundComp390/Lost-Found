@@ -48,6 +48,7 @@ public class BrowseListings extends JPanel {
 
     private String currentCategory;
     private String currentKeyword;
+    private String currentLocation;
 
 
     // Turning BrowseListings into a panel to work with controller Frame
@@ -58,6 +59,7 @@ public class BrowseListings extends JPanel {
 
         this.currentCategory = "All";
         this.currentKeyword = null;
+        this.currentLocation = null;
 
         this.controls = controller;
         this.postService = postService;
