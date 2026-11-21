@@ -5,8 +5,6 @@
     import com.lostandfound.model.Post;
     import com.lostandfound.model.User;
     import com.lostandfound.model.UserSession;
-    import com.lostandfound.repo.DbPostsRepository;
-    import com.lostandfound.repo.PostRepository;
     import com.lostandfound.services.PostService;
     import com.lostandfound.services.ClaimService;
     import com.lostandfound.services.UserService;
@@ -28,13 +26,15 @@
         private BrowseListings browsingPanel;
         private LoginUI loginPanel;
 
-        private final ClaimService claimServ;
-        private PostRepository postRepo;
-        public ControllerFrame(UserService userService, PostService postService, ClaimService claimServ) throws IOException{
+        private final ClaimService claimService;
+        private final PostService postService;
+
+        public ControllerFrame(UserService userService, PostService postService, ClaimService claimService) throws IOException{
             // Initialization
             cardLayout = new CardLayout();
             mainPanel = new JPanel((cardLayout));
-            this.claimServ = claimServ;
+            this.claimService = claimService;
+            this.postService = postService;
 
 
             setTitle("Lost-Found");
@@ -129,7 +129,7 @@
 
             if(currentUser.isAdmin()){
                 // init the claims
-                List<Claim> claims = claimServ.getClaims(post);
+                List<Claim> claims = claimService.getClaims(post);
 
                 // check if there are claims
                 if (claims.isEmpty()){
@@ -138,11 +138,11 @@
                 }
 
                 // there must be claims, therefore deploy the radio button dialogue
-                ViewClaimants viewer = new ViewClaimants(post, claimServ);
+                ViewClaimants viewer = new ViewClaimants(post, claimService);
                 viewer.showAdmin();
                 return false;
             }else{
-                String feedback = claimServ.submitClaim(currentUser, post);
+                String feedback = claimService.submitClaim(currentUser, post);
                 JOptionPane.showMessageDialog(this, feedback);
 
                 // postComp needs a boolean to disable the button after a claim was submitted
@@ -274,7 +274,7 @@
                 post.setDesc(newDesc);
 
                 // Persist to SQLite and refresh UI
-                postRepo.updatePost(post);
+                postService.updatePost(post);
                 browsingPanel.refreshPosts();
                 JOptionPane.showMessageDialog(this, "Post updated!");
             }
@@ -294,7 +294,7 @@
             );
 
             if (confirm == JOptionPane.YES_OPTION) {
-                postRepo.deletePost(post.getProductID());
+                postService.deletePostById(post.getProductID());
                 browsingPanel.removePost(post);
                 JOptionPane.showMessageDialog(this, "Post deleted!");
             }

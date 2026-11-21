@@ -345,7 +345,8 @@ public class DbPostsRepository implements PostRepository {
     }
 
     @Override
-    public void deletePost(long listingId) {
+    // Todo: we want to mark the post as not active instead of actually deleting. The admin will need to search old posts.
+    public void deletePostById(long listingId) {
         String sql = "DELETE FROM Listings WHERE listing_id = ?";
 
         try (Connection conn = db.getConnection();

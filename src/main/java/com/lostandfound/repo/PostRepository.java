@@ -34,7 +34,7 @@ public interface PostRepository {
 
     void updatePost(Post post);
 
-    void deletePost(long listingID);
+    void deletePostById(long listingID);
 
     List<Post> searchByKeywordNonExpired(String keyword);
 

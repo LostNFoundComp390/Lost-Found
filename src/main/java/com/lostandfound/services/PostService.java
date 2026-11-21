@@ -4,7 +4,6 @@ import com.lostandfound.model.Post;
 import com.lostandfound.model.UserSession;
 import com.lostandfound.repo.PostRepository;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public class PostService {
@@ -34,8 +33,15 @@ public class PostService {
     }
 
     public void updateExpiredStatus(){
-
         postRepo.updateExpiredStatus();
+    }
 
+    public void updatePost(Post post){
+        postRepo.updatePost(post);
+    }
+
+
+    public void deletePostById(long postId){
+        postRepo.deletePostById(postId);
     }
 }
