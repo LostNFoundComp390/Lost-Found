@@ -392,6 +392,70 @@ public class DbPostsRepository implements PostRepository {
         }
     }
 
+    public void updateListingStatus(Post post) {
+        String sql = "UPDATE Listings SET status = ?, claimer_id = ? WHERE listing_id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, post.getStatus());
+
+            if (post.getClaimerID() > 0) {
+                ps.setInt(2, post.getClaimerID());
+            } else {
+                ps.setNull(2, Types.INTEGER);
+            }
+
+            ps.setLong(3, post.getProductID());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updatePost(Post post) {
+        String sql = """
+                UPDATE Listings
+                SET description = ?,
+                    category = ?,
+                    product_name = ?,
+                    expiration_date = ?,
+                    photo = ?,
+                    value_status = ?,
+                    location = ?
+                WHERE listing_id = ?;
+                """;
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, post.getDesc());
+            ps.setString(2, post.getCategory());
+            ps.setString(3, post.getName());
+            ps.setString(4, post.getStringExpiration());
+            ps.setString(5, post.getPhoto());
+            ps.setString(6, post.getValueStatus());
+            ps.setString(7, post.getLocation());
+            ps.setLong(8, post.getProductID());
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deletePost(long listingId) {
+        String sql = "DELETE FROM Listings WHERE listing_id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, listingId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public List<Claim> findClaims(long listingID){
         // init return var

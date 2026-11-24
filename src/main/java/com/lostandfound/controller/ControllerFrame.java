@@ -19,6 +19,14 @@
     import java.io.IOException;
     import java.util.List;
 
+    import javax.swing.filechooser.FileNameExtensionFilter;
+    import java.io.File;
+    import java.nio.file.Files;
+    import java.nio.file.Path;
+    import java.nio.file.Paths;
+    import java.nio.file.StandardCopyOption;
+
+
     public class ControllerFrame extends JFrame{
         public final String login = "LOGIN";
         public final String browsing = "BROWSING";
@@ -29,7 +37,7 @@
         private LoginUI loginPanel;
 
         private final ClaimService claimServ;
-        private PostService postRepo;
+        private PostRepository postRepo;
         public ControllerFrame(UserService userService, PostService postService, ClaimService claimServ) throws IOException{
             // Initialization
             cardLayout = new CardLayout();
@@ -195,6 +203,178 @@
                 post.setLocation(newLocation);
                 post.setExpirationDate(newExp);
                 post.setPhoto(photoField.getText().trim());
+                post.setValueStatus(valueStatusField.getText().trim());
+                post.setDesc(newDesc);
+
+                // Persist to SQLite and refresh UI
+                postRepo.updatePost(post);
+                browsingPanel.refreshPosts();
+                JOptionPane.showMessageDialog(this, "Post updated!");
+            }
+        }
+        public void deletePost(Post post) {
+            if (!canModifyPost(post)) {
+                JOptionPane.showMessageDialog(this, "You can only delete your own posts.");
+                return;
+            }
+
+            int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to delete \"" + post.getName() + "\"?",
+                "Delete Post",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                postRepo.deletePost(post.getProductID());
+                browsingPanel.removePost(post);
+                JOptionPane.showMessageDialog(this, "Post deleted!");
+            }
+        }
+
+
+
+        public boolean canModifyPost(Post post) {
+            User user = UserSession.getInstance().getCurrentUser();
+            if (user == null || post == null) {
+                return false;
+            }
+            return user.getUserID() == post.getOwnerID() || user.isAdmin();
+        }
+
+        public void editPost(Post post) {
+            if (!canModifyPost(post)) {
+                JOptionPane.showMessageDialog(this, "You can only edit your own posts.");
+                return;
+            }
+
+            // Pre-filled form fields
+            JTextField nameField = new JTextField(post.getName(), 20);
+            String[] categories = {"Accessories", "Electronics", "Clothing", "Bags"};
+            JComboBox<String> categoryBox = new JComboBox<>(categories);
+            categoryBox.setSelectedItem(post.getCategory());
+
+            JTextField locationField = new JTextField(post.getLocation(), 20);
+            JTextField expirationField = new JTextField(post.getStringExpiration(), 20);
+            //JTextField photoField = new JTextField(post.getPhoto() != null ? post.getPhoto() : "", 20);
+            JTextField valueStatusField = new JTextField(post.getValueStatus() != null ? post.getValueStatus() : "Standard", 20);
+
+            JTextArea descArea = new JTextArea(post.getDesc(), 2, 20);
+            descArea.setLineWrap(true);
+            descArea.setWrapStyleWord(true);
+            JScrollPane descScroll = new JScrollPane(descArea);
+
+            // Image picker & preview setup
+            JTextField photoField = new JTextField(post.getPhoto() != null ? post.getPhoto() : "",14);
+            photoField.setEditable(false);
+            JButton browseImageBtn = new JButton("Change Image...");
+            JLabel imagePreview = new JLabel();
+            imagePreview.setPreferredSize(new Dimension(40,40));
+            imagePreview.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+            imagePreview.setHorizontalAlignment(SwingConstants.CENTER);
+
+            // Load current image if one exists
+            if (post.getPhoto() != null && !post.getPhoto().trim().isEmpty()) {
+                String firstPhoto = post.getPhoto().split(",")[0].trim();
+                File existingFile = new File("images/" + firstPhoto);
+                if (existingFile.exists()) {
+                    Image scaled = new ImageIcon(existingFile.getAbsolutePath()).getImage().getScaledInstance(80,80,Image.SCALE_SMOOTH);
+                    imagePreview.setIcon(new ImageIcon(scaled));
+                }
+            }
+
+            // Track newly selected file (null if manager keeps existing photo)
+            final File[] selectedImageFile = {null};
+
+            browseImageBtn.addActionListener(e -> {
+                JFileChooser chooser = new JFileChooser();
+                chooser.setDialogTitle("Select Item Image");
+                chooser.setFileFilter(new FileNameExtensionFilter("Image Files )JPG, PNG, GIF)", "jpg", "jpeg", "png","gif"));
+
+                if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                    selectedImageFile[0] = chooser.getSelectedFile();
+                    photoField.setText(selectedImageFile[0].getName());
+
+                    // Update Preview Thumbnail
+                    Image scaled = new ImageIcon(selectedImageFile[0].getAbsolutePath()).getImage().getScaledInstance(80,80,Image.SCALE_SMOOTH);
+                    imagePreview.setIcon(new ImageIcon(scaled));
+
+                }
+
+            });
+
+            JPanel photoControlPanel = new JPanel(new BorderLayout(5,5));
+            photoControlPanel.add(photoField, BorderLayout.CENTER);
+            photoControlPanel.add(browseImageBtn, BorderLayout.EAST);
+
+            JPanel photoWrapper = new JPanel(new FlowLayout(FlowLayout.LEFT,5,0));
+            photoWrapper.add(imagePreview);
+            photoWrapper.add(photoControlPanel);
+
+
+            // Layout the dialog form
+            JPanel formPanel = new JPanel(new GridLayout(0,2,8,8));
+            formPanel.add(new JLabel("Item Name:"));
+            formPanel.add(nameField);
+            formPanel.add(new JLabel("Category:"));
+            formPanel.add(categoryBox);
+            formPanel.add(new JLabel("Location:"));
+            formPanel.add(locationField);
+            formPanel.add(new JLabel("Expiration Date (YYYY-MM-DD):"));
+            formPanel.add(expirationField);
+            formPanel.add(new JLabel("Item Image:"));
+            formPanel.add(photoWrapper);
+            formPanel.add(new JLabel("Value Status:"));
+            formPanel.add(valueStatusField);
+            formPanel.add(new JLabel("Description:"));
+            formPanel.add(descScroll);
+
+            int result = JOptionPane.showConfirmDialog(
+                this,
+                formPanel,
+                "Edit Post",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+            );
+
+            if (result == JOptionPane.OK_OPTION) {
+                String newName = nameField.getText().trim();
+                String newDesc = descArea.getText().trim();
+                String newLocation = locationField.getText().trim();
+                String newExp = expirationField.getText().trim();
+
+                if (newName.isEmpty() || newDesc.isEmpty() || newLocation.isEmpty() || newExp.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Name, location, expiration date, and description cannot be empty.");
+                    return;
+                }
+
+                // If a new image was picked, copy it into the "images/" folder
+                String finalPhotoName = post.getPhoto();
+                if (selectedImageFile[0] != null) {
+                    try {
+                        File imagesDir = new File("images");
+                        if (!imagesDir.exists()) {
+                            imagesDir.mkdirs();
+                        }
+                        // Prefix with timestamp so identically named files don't overwrite eachother
+                        String uniqueFileName = System.currentTimeMillis() + "_" + selectedImageFile[0].getName();
+                        Path destination = Paths.get(imagesDir.getAbsolutePath(), uniqueFileName);
+                        Files.copy(selectedImageFile[0].toPath(), destination, StandardCopyOption.REPLACE_EXISTING);
+
+                        finalPhotoName = uniqueFileName;
+                    }   catch (IOException ex) {
+                        JOptionPane.showMessageDialog(this, "Failed to save new image: " + ex.getMessage(), "Image Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+
+                // Update the Post object in memory
+                post.setName(newName);
+                post.setCategory((String) categoryBox.getSelectedItem());
+                post.setLocation(newLocation);
+                post.setExpirationDate(newExp);
+                post.setPhoto(finalPhotoName);
                 post.setValueStatus(valueStatusField.getText().trim());
                 post.setDesc(newDesc);
 

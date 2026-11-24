@@ -99,21 +99,15 @@ public class BrowseListings extends JPanel {
 
         logoutButton = new JButton("Log Out");
 
-        // Add the category buttons
-        listModel.add(categories, constraints(0,0,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.CENTER));
-        listModel.add(accessoriesButton, constraints(0, 1, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(electronicsButton, constraints(0, 2, 1, 0,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(clothingsButton, constraints(0, 3, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(bagsButton, constraints(0, 4, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(allButton, constraints(0, 5, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
 
-        // Add the location buttons
-        listModel.add(locations, constraints(0,6,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.CENTER));
-        listModel.add(dmf, constraints(0,7,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(rsu, constraints(0,8,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(hunt, constraints(0,9,1,1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(crim, constraints(0,10,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(maxwell, constraints(0,11,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+
+
+        listModel.add(accessoriesButton, constraints(0, 0, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(electronicsButton, constraints(0, 1, 1, 0,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(clothingsButton, constraints(0, 2, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(bagsButton, constraints(0, 3, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(allButton, constraints(0, 4, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+
 
         // Action Listener to switch panels
         logoutButton.addActionListener(event -> {
