@@ -48,6 +48,7 @@ public class BrowseListings extends JPanel {
 
     private String currentCategory;
     private String currentKeyword;
+    private String currentLocation;
 
 
     // Turning BrowseListings into a panel to work with controller Frame
@@ -58,6 +59,7 @@ public class BrowseListings extends JPanel {
 
         this.currentCategory = "All";
         this.currentKeyword = null;
+        this.currentLocation = null;
 
         this.controls = controller;
         this.postService = postService;
@@ -75,16 +77,26 @@ public class BrowseListings extends JPanel {
         // Search bar
         searchField = new JTextField();
         searchLabel = new JLabel("Search: ");
+        JLabel locations = new JLabel("Location Search");
+        JLabel categories = new JLabel("Categories Search");
 
         addPostPanel = new JPanel(new GridBagLayout());
 
-        searchButton = new JButton("Search");
         createPostButton = new JButton("+");
+
+        searchButton = new JButton("Search");
         accessoriesButton = new JButton("Accessories");
         electronicsButton = new JButton("Electronics");
         clothingsButton = new JButton("Clothing");
         bagsButton = new JButton("Bags");
         allButton = new JButton("All");
+
+        JButton dmf = new JButton("DMF");
+        JButton rsu = new JButton("RSU");
+        JButton hunt = new JButton("Hunt Hall");
+        JButton crim = new JButton("Crimson Hall");
+        JButton maxwell = new JButton("Library");
+
         logoutButton = new JButton("Log Out");
 
 
@@ -103,7 +115,7 @@ public class BrowseListings extends JPanel {
             controls.showLogin();
         });
 
-        // action Listener for listing categories
+        // action Listeners for listing categories
         accessoriesButton.addActionListener(event -> {
             filterByCategory("Accessories");
         });
@@ -129,6 +141,11 @@ public class BrowseListings extends JPanel {
         });
         searchButton.addActionListener(event -> {
             makeSearch();
+        });
+
+        // action listeners for locations
+        dmf.addActionListener(event -> {
+
         });
 
 
@@ -206,6 +223,19 @@ public class BrowseListings extends JPanel {
         }
         setPosts(filteredPosts);
     }
+
+    private void filterByLocation (String location){
+        List<Post> filteredPosts = new ArrayList<>();
+
+        for(Post post: allPosts){
+            if(post.getLocation() != null
+            && post.getLocation().equalsIgnoreCase(location)){
+                filteredPosts.add(post);
+            }
+        }
+        setPosts(filteredPosts);
+    }
+
 
     /**
      * Search by using both keyword and category

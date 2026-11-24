@@ -117,10 +117,10 @@ public class DbPostsRepository implements PostRepository {
         return posts;
     }
 
-    public List<Post> findAllNonExpired(){
+    public List<Post> findAllUser(){
         String sql = """
             SELECT * FROM Listings
-            WHERE is_expired = 0
+            WHERE is_expired = 0 AND status <> 'claimed'
             """;
         List<Post> posts = new ArrayList<>();
 
@@ -205,12 +205,12 @@ public class DbPostsRepository implements PostRepository {
     }
 
     @Override
-    public List<Post> searchByKeywordNonExpired(String keyword) {
+    public List<Post> searchByKeywordUser(String keyword) {
         String pattern = "%" + keyword + "%";
         String sql = """
             SELECT *
             FROM Listings
-            WHERE (is_expired = 0) AND (product_name like ? OR description like ?)
+            WHERE (is_expired = 0) AND (product_name like ? OR description like ?) AND status <> 'claimed'
             """;
 
 
@@ -241,6 +241,41 @@ public class DbPostsRepository implements PostRepository {
 
     }
 
+    public List<Post> searchByLocationUser(String location){
+        // Init
+        String locationPattern = "%" + location.toUpperCase() + "%";
+        String sql = """
+                SELECT * 
+                FROM Listings 
+                WHERE (is_expired = 0) 
+                    AND UPPER(location) LIKE ? 
+                    AND LOWER(status) <> 'claimed'
+                """;
+        List<Post> posts = new ArrayList<>();
+        try(Connection conn = db.getConnection()){
+            // prepare sql
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            // insert var
+            ps.setString(1,locationPattern);
+            try(ResultSet rs = ps.executeQuery()){
+                while(rs.next()){
+                    // create new object
+                    Post post = rowToPost(rs);
+
+                    // build the array
+                    posts.add(post);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error searching non-expired and unclaimed posts by location",e);
+        }
+
+        // send back up the array
+        return posts;
+    }
+
     // Helper method for turning rows into a Post
     private Post rowToPost(ResultSet rs) throws SQLException{
         // Initialization
@@ -260,6 +295,70 @@ public class DbPostsRepository implements PostRepository {
         post.setLocation(rs.getString("location"));
 
         return post;
+    }
+
+    public void updateListingStatus(Post post) {
+        String sql = "UPDATE Listings SET status = ?, claimer_id = ? WHERE listing_id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, post.getStatus());
+
+            if (post.getClaimerID() > 0) {
+                ps.setInt(2, post.getClaimerID());
+            } else {
+                ps.setNull(2, Types.INTEGER);
+            }
+
+            ps.setLong(3, post.getProductID());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updatePost(Post post) {
+        String sql = """
+                UPDATE Listings
+                SET description = ?,
+                    category = ?,
+                    product_name = ?,
+                    expiration_date = ?,
+                    photo = ?,
+                    value_status = ?,
+                    location = ?
+                WHERE listing_id = ?;
+                """;
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, post.getDesc());
+            ps.setString(2, post.getCategory());
+            ps.setString(3, post.getName());
+            ps.setString(4, post.getStringExpiration());
+            ps.setString(5, post.getPhoto());
+            ps.setString(6, post.getValueStatus());
+            ps.setString(7, post.getLocation());
+            ps.setLong(8, post.getProductID());
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deletePost(long listingId) {
+        String sql = "DELETE FROM Listings WHERE listing_id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, listingId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean createClaim(long listingID, int userID){

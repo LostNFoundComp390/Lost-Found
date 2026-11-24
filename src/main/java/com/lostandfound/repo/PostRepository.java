@@ -40,7 +40,10 @@ public interface PostRepository {
 
     List<Post> searchByKeyword(String keyword);
 
-    List<Post> findAllNonExpired();
+    List<Post> searchByLocationUser(String location);
+
+    List<Post> findAllUser();
 
     void updateExpiredStatus();
+
 }
