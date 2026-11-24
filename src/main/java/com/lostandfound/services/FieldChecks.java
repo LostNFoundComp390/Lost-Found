@@ -14,7 +14,7 @@ public class FieldChecks
     private String confirmedPassword = "";
     private String enteredEmail = "";
     private String enteredFirstName = "";
-    private String eneteredLastName = "";
+    private String enteredLastName = "";
 
     //Checks to see if usernameField is empty
     public boolean isUsernameFieldEmpty(String username)
@@ -131,8 +131,8 @@ public class FieldChecks
     //checks to see if last name textbox is empty
     public boolean isLastNameFieldEmpty(String lastName)
     {
-        eneteredLastName = lastName;
-        if(eneteredLastName.isBlank())
+        enteredLastName = lastName;
+        if(enteredLastName.isBlank())
             return true;
         else
             return false;

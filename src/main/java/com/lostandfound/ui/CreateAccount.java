@@ -5,6 +5,7 @@ import com.lostandfound.repo.DbUserRepository;
 import com.lostandfound.repo.UserRepository;
 import com.lostandfound.services.FieldChecks;
 import com.lostandfound.services.UserService;
+import com.lostandfound.ui.LoginUI;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -67,15 +68,12 @@ public class CreateAccount extends JFrame implements ActionListener {
     private boolean isLastNameFieldEmpty = true;
 
 
-    Database database = Database.production();
-    DbUserRepository userRepo = new DbUserRepository(database);
     FieldChecks fieldChecks = new FieldChecks();
-    UserRepository repo;
-    UserService userService = new UserService(repo);
+    UserService userService;
 
-    public CreateAccount(ControllerFrame controller) {
+    public CreateAccount(ControllerFrame controller, UserService userService) {
         this.controller = controller;
-
+        this.userService = userService;
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 
@@ -302,6 +300,9 @@ public class CreateAccount extends JFrame implements ActionListener {
 
             if (!isUsernameFieldEmpty && isUsernameAvailable && isUsernameMinimumLength && !isPasswordFieldEmpty && doPasswordsMatch && isPasswordLegal && !isEmailTextFieldEmpty && !isFirstNameFieldEmpty && !isLastNameFieldEmpty) {
                 userService.register(user, username, password, email);
+                this.dispose();
+                new LoginUI(controller, userService);
+                controller.setVisible(true);
             }
         }//end if(e.getSource() == registerButton)
     }//end actionPerformed
