@@ -48,6 +48,7 @@ public class BrowseListings extends JPanel {
 
     private String currentCategory;
     private String currentKeyword;
+    private String currentLocation;
 
 
     // Turning BrowseListings into a panel to work with controller Frame
@@ -58,6 +59,7 @@ public class BrowseListings extends JPanel {
 
         this.currentCategory = "All";
         this.currentKeyword = null;
+        this.currentLocation = null;
 
         this.controls = controller;
         this.postService = postService;
@@ -75,27 +77,43 @@ public class BrowseListings extends JPanel {
         // Search bar
         searchField = new JTextField();
         searchLabel = new JLabel("Search: ");
+        JLabel locations = new JLabel("Location Search");
+        JLabel categories = new JLabel("Categories Search");
 
         addPostPanel = new JPanel(new GridBagLayout());
 
-        searchButton = new JButton("Search");
         createPostButton = new JButton("+");
+
+        searchButton = new JButton("Search");
         accessoriesButton = new JButton("Accessories");
         electronicsButton = new JButton("Electronics");
         clothingsButton = new JButton("Clothing");
         bagsButton = new JButton("Bags");
         allButton = new JButton("All");
+
+        JButton dmf = new JButton("DMF");
+        JButton rsu = new JButton("RSU");
+        JButton hunt = new JButton("Hunt Hall");
+        JButton crim = new JButton("Crimson Hall");
+        JButton maxwell = new JButton("Library");
+
         logoutButton = new JButton("Log Out");
 
+        // Add the category buttons
+        listModel.add(categories, constraints(0,0,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.CENTER));
+        listModel.add(accessoriesButton, constraints(0, 1, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(electronicsButton, constraints(0, 2, 1, 0,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(clothingsButton, constraints(0, 3, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(bagsButton, constraints(0, 4, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(allButton, constraints(0, 5, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
 
-
-
-        listModel.add(accessoriesButton, constraints(0, 0, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(electronicsButton, constraints(0, 1, 1, 0,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(clothingsButton, constraints(0, 2, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(bagsButton, constraints(0, 3, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(allButton, constraints(0, 4, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-
+        // Add the location buttons
+        listModel.add(locations, constraints(0,6,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.CENTER));
+        listModel.add(dmf, constraints(0,7,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(rsu, constraints(0,8,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(hunt, constraints(0,9,1,1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(crim, constraints(0,10,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(maxwell, constraints(0,11,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
 
         // Action Listener to switch panels
         logoutButton.addActionListener(event -> {
@@ -103,7 +121,7 @@ public class BrowseListings extends JPanel {
             controls.showLogin();
         });
 
-        // action Listener for listing categories
+        // action Listeners for listing categories
         accessoriesButton.addActionListener(event -> {
             filterByCategory("Accessories");
         });
@@ -129,6 +147,11 @@ public class BrowseListings extends JPanel {
         });
         searchButton.addActionListener(event -> {
             makeSearch();
+        });
+
+        // action listeners for locations
+        dmf.addActionListener(event -> {
+
         });
 
 
@@ -206,6 +229,19 @@ public class BrowseListings extends JPanel {
         }
         setPosts(filteredPosts);
     }
+
+    private void filterByLocation (String location){
+        List<Post> filteredPosts = new ArrayList<>();
+
+        for(Post post: allPosts){
+            if(post.getLocation() != null
+            && post.getLocation().equalsIgnoreCase(location)){
+                filteredPosts.add(post);
+            }
+        }
+        setPosts(filteredPosts);
+    }
+
 
     /**
      * Search by using both keyword and category
