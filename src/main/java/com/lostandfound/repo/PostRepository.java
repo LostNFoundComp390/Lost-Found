@@ -32,16 +32,16 @@ public interface PostRepository {
      */
     List<Post> searchCategory(String category);
 
-    List<Post> searchByKeywordNonExpiredUnclaimed(String keyword);
+    List<Post> searchByKeywordUser(String keyword);
     void updatePost(Post post);
 
     void deletePost(long listingID);
 
     List<Post> searchByKeyword(String keyword);
 
-    List<Post> searchByLocationNonExpiredUnclaimed(String location);
+    List<Post> searchByLocationUser(String location);
 
-    List<Post> findAllNonExpiredUnclaimed();
+    List<Post> findAllUser();
 
     void updateExpiredStatus();
 

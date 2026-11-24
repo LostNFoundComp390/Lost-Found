@@ -117,7 +117,7 @@ public class DbPostsRepository implements PostRepository {
         return posts;
     }
 
-    public List<Post> findAllNonExpiredUnclaimed(){
+    public List<Post> findAllUser(){
         String sql = """
             SELECT * FROM Listings
             WHERE is_expired = 0 AND status <> 'claimed'
@@ -205,7 +205,7 @@ public class DbPostsRepository implements PostRepository {
     }
 
     @Override
-    public List<Post> searchByKeywordNonExpiredUnclaimed(String keyword) {
+    public List<Post> searchByKeywordUser(String keyword) {
         String pattern = "%" + keyword + "%";
         String sql = """
             SELECT *
@@ -241,7 +241,7 @@ public class DbPostsRepository implements PostRepository {
 
     }
 
-    public List<Post> searchByLocationNonExpiredUnclaimed(String location){
+    public List<Post> searchByLocationUser(String location){
         // Init
         String locationPattern = "%" + location.toUpperCase() + "%";
         String sql = """
