@@ -241,6 +241,40 @@ public class DbPostsRepository implements PostRepository {
 
     }
 
+    @Override
+    public List<Post> searchByLocation(String location) {
+        // Init
+        String locationPattern = "%" + location.toUpperCase() + "%";
+        String sql = """
+                SELECT * 
+                FROM Listings 
+                WHERE UPPER(location) LIKE ? 
+                """;
+        List<Post> posts = new ArrayList<>();
+        try(Connection conn = db.getConnection()){
+            // prepare sql
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            // insert var
+            ps.setString(1,locationPattern);
+            try(ResultSet rs = ps.executeQuery()){
+                while(rs.next()){
+                    // create new object
+                    Post post = rowToPost(rs);
+
+                    // build the array
+                    posts.add(post);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error searching posts by location",e);
+        }
+
+        // send back up the array
+        return posts;
+    }
+
     public List<Post> searchByLocationUser(String location){
         // Init
         String locationPattern = "%" + location.toUpperCase() + "%";

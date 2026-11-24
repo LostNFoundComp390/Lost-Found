@@ -96,6 +96,7 @@ public class BrowseListings extends JPanel {
         JButton hunt = new JButton("Hunt Hall");
         JButton crim = new JButton("Crimson Hall");
         JButton maxwell = new JButton("Library");
+        JButton burnell = new JButton("Burnell Hall");
 
         logoutButton = new JButton("Log Out");
 
@@ -114,6 +115,8 @@ public class BrowseListings extends JPanel {
         listModel.add(hunt, constraints(0,9,1,1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
         listModel.add(crim, constraints(0,10,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
         listModel.add(maxwell, constraints(0,11,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(burnell, constraints(0,12,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+
 
         // Action Listener to switch panels
         logoutButton.addActionListener(event -> {
@@ -149,9 +152,26 @@ public class BrowseListings extends JPanel {
             makeSearch();
         });
 
+
         // action listeners for locations
         dmf.addActionListener(event -> {
+            searchByLocation("DMF");
+        });
+        rsu.addActionListener(event ->{
+            searchByLocation("RSU");
 
+        });
+        hunt.addActionListener(event ->{
+            searchByLocation("Hunt");
+        });
+        crim.addActionListener(event ->{
+            searchByLocation("Crimson");
+        });
+        maxwell.addActionListener(event ->{
+            searchByLocation("Maxwell");
+        });
+        burnell.addActionListener(event ->{
+            searchByLocation("Burnell");
         });
 
 
@@ -210,7 +230,11 @@ public class BrowseListings extends JPanel {
     private void makeSearch() {
         String keyword = searchField.getText();
         currentKeyword = keyword;
-        setPosts(postService.search(keyword));
+        setPosts(postService.searchByKeyword(keyword));
+    }
+
+    private void searchByLocation(String location){
+        setPosts(postService.searchByLocation(location));
     }
 
     private void filterByCategory(String category) {
@@ -229,19 +253,6 @@ public class BrowseListings extends JPanel {
         }
         setPosts(filteredPosts);
     }
-
-    private void filterByLocation (String location){
-        List<Post> filteredPosts = new ArrayList<>();
-
-        for(Post post: allPosts){
-            if(post.getLocation() != null
-            && post.getLocation().equalsIgnoreCase(location)){
-                filteredPosts.add(post);
-            }
-        }
-        setPosts(filteredPosts);
-    }
-
 
     /**
      * Search by using both keyword and category

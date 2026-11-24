@@ -20,7 +20,7 @@ public class PostService {
             : postRepo.findAllUser();
     }
 
-    public List<Post> search(String keyword) {
+    public List<Post> searchByKeyword(String keyword) {
         boolean isAdmin = UserSession.getInstance().getCurrentUser().isAdmin();
         if(keyword.isBlank()) {
             return isAdmin
@@ -30,6 +30,19 @@ public class PostService {
             return isAdmin
                 ? postRepo.searchByKeyword(keyword)
                 : postRepo.searchByKeywordUser(keyword);
+        }
+    }
+
+    public List<Post> searchByLocation(String location){
+        boolean isAdmin = UserSession.getInstance().getCurrentUser().isAdmin();
+        if(location.isBlank()){
+            return isAdmin
+                    ? postRepo.findAll()
+                    : postRepo.findAllUser();
+        }else{
+            return isAdmin
+                    ? postRepo.searchByLocation(location)
+                    : postRepo.searchByLocationUser(location);
         }
     }
 

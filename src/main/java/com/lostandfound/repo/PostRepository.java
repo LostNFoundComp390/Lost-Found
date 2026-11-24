@@ -40,6 +40,7 @@ public interface PostRepository {
     List<Post> searchByKeyword(String keyword);
 
     List<Post> searchByLocationUser(String location);
+    List<Post> searchByLocation(String location);
 
     List<Post> findAllUser();
 
