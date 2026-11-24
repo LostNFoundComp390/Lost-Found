@@ -67,8 +67,8 @@ public class DbUserRepository implements UserRepository {
             INSERT INTO Users (role, username, password, email) VALUES(?, ?, ?, ?)
             ON CONFLICT(username)
             DO UPDATE SET
-                role = excluded.role
-                password = excluded.password
+                role = excluded.role,
+                password = excluded.password,
                 email = excluded.email
             """;
 

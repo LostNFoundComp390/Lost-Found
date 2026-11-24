@@ -17,13 +17,15 @@ public class LoginUI extends JPanel implements ActionListener {
     private ControllerFrame controller;
     private UserService userService;
     private JButton loginButton;
+    private JButton createAccountButton;
+
     private JLabel usernameLabel;
     private JLabel passwordLabel;
     private JLabel feedbackLabel;
+    private JLabel accountCreated;
     private JLabel titleLabel;
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private JButton createAccountButton;
 
     public LoginUI(ControllerFrame controller, UserService userService) {
         this.userService = userService;
@@ -81,6 +83,10 @@ public class LoginUI extends JPanel implements ActionListener {
         feedbackLabel.setForeground(Color.WHITE);
         feedbackLabel.setOpaque(false);
 
+        accountCreated = new JLabel("Account Created!/n Please login.");
+        accountCreated.setForeground(Color.WHITE);
+        accountCreated.setOpaque(false);
+
         // Title, login button, and feedback label span both columns.
         add(titleLabel, constraints(0, 0, 2, GridBagConstraints.NONE, 0, GridBagConstraints.CENTER));
         add(loginButton, constraints(0, 3, 2, GridBagConstraints.NONE, 0, GridBagConstraints.CENTER));
@@ -103,7 +109,7 @@ public class LoginUI extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
 
         if (e.getSource() == createAccountButton){//Opens the Create Account page when the Create Account Button is Pushed
-            new CreateAccount(controller);//passes the controller so CreateAccount can bring back the Login window
+            new CreateAccount(controller, userService);//passes the controller so CreateAccount can bring back the Login window
             controller.setVisible(false);//closes Login window
             return;
         }
@@ -164,6 +170,7 @@ public class LoginUI extends JPanel implements ActionListener {
      * frame's default button.
      * @return {@code JButton}
      */
+
     public JButton getLoginButton (){
         return loginButton;
     }
