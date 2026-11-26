@@ -117,7 +117,7 @@ public class DbPostsRepository implements PostRepository {
         return posts;
     }
 
-    public List<Post> findAllUser(){
+    public List<Post> findAllForUser(){
         String sql = """
             SELECT * FROM Listings
             WHERE is_expired = 0 AND status <> 'claimed'
@@ -205,7 +205,7 @@ public class DbPostsRepository implements PostRepository {
     }
 
     @Override
-    public List<Post> searchByKeywordUser(String keyword) {
+    public List<Post> searchByKeywordForUser(String keyword) {
         String pattern = "%" + keyword + "%";
         String sql = """
             SELECT *
@@ -275,7 +275,7 @@ public class DbPostsRepository implements PostRepository {
         return posts;
     }
 
-    public List<Post> searchByLocationUser(String location){
+    public List<Post> searchByLocationForUser(String location){
         // Init
         String locationPattern = "%" + location.toUpperCase() + "%";
         String sql = """

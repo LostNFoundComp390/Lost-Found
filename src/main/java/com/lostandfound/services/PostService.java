@@ -4,7 +4,6 @@ import com.lostandfound.model.Post;
 import com.lostandfound.model.UserSession;
 import com.lostandfound.repo.PostRepository;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public class PostService {
@@ -17,7 +16,7 @@ public class PostService {
         boolean isAdmin = UserSession.getInstance().getCurrentUser().isAdmin();
         return isAdmin
             ? postRepo.findAll()
-            : postRepo.findAllUser();
+            : postRepo.findAllForUser();
     }
 
     public List<Post> searchByKeyword(String keyword) {
@@ -25,11 +24,11 @@ public class PostService {
         if(keyword.isBlank()) {
             return isAdmin
                 ? postRepo.findAll()
-                : postRepo.findAllUser();
+                : postRepo.findAllForUser();
         }else{
             return isAdmin
                 ? postRepo.searchByKeyword(keyword)
-                : postRepo.searchByKeywordUser(keyword);
+                : postRepo.searchByKeywordForUser(keyword);
         }
     }
 
@@ -38,11 +37,11 @@ public class PostService {
         if(location.isBlank()){
             return isAdmin
                     ? postRepo.findAll()
-                    : postRepo.findAllUser();
+                    : postRepo.findAllForUser();
         }else{
             return isAdmin
                     ? postRepo.searchByLocation(location)
-                    : postRepo.searchByLocationUser(location);
+                    : postRepo.searchByLocationForUser(location);
         }
     }
 
