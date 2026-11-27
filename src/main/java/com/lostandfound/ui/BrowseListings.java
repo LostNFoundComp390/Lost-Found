@@ -38,6 +38,13 @@ public class BrowseListings extends JPanel {
     private final JButton createPostButton;
     private final JButton searchButton;
 
+    private final JButton dmfButton;
+    private final JButton rsuButton;
+    private final JButton huntButton;
+    private final JButton crimButton;
+    private final JButton maxwellButton;
+    private final JButton burnellButton;
+
     private final JTextField searchField;
     private final JLabel searchLabel;
 
@@ -57,7 +64,7 @@ public class BrowseListings extends JPanel {
         setLayout(new GridBagLayout());
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        this.currentCategory = "All";
+        this.currentCategory = null;
         this.currentKeyword = null;
         this.currentLocation = null;
 
@@ -91,12 +98,12 @@ public class BrowseListings extends JPanel {
         bagsButton = new JButton("Bags");
         resetButton = new JButton("Reset");
 
-        JButton dmf = new JButton("DMF");
-        JButton rsu = new JButton("RSU");
-        JButton hunt = new JButton("Hunt Hall");
-        JButton crim = new JButton("Crimson Hall");
-        JButton maxwell = new JButton("Library");
-        JButton burnell = new JButton("Burnell Hall");
+        dmfButton = new JButton("DMF");
+        rsuButton = new JButton("RSU");
+        huntButton = new JButton("Hunt Hall");
+        crimButton = new JButton("Crimson Hall");
+        maxwellButton = new JButton("Library");
+        burnellButton = new JButton("Burnell Hall");
 
         logoutButton = new JButton("Log Out");
 
@@ -109,12 +116,12 @@ public class BrowseListings extends JPanel {
 
         // Add the location buttons
         listModel.add(locations, constraints(0,5,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.CENTER));
-        listModel.add(dmf, constraints(0,6,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(rsu, constraints(0,7,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(hunt, constraints(0,8,1,1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(crim, constraints(0,9,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(maxwell, constraints(0,10,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
-        listModel.add(burnell, constraints(0,11,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(dmfButton, constraints(0,6,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(rsuButton, constraints(0,7,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(huntButton, constraints(0,8,1,1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(crimButton, constraints(0,9,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(maxwellButton, constraints(0,10,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
+        listModel.add(burnellButton, constraints(0,11,1,1,1,GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
         listModel.add(resetButton, constraints(0, 12, 1, 1,1, GridBagConstraints.BOTH, GridBagConstraints.LINE_START));
 
 
@@ -126,23 +133,23 @@ public class BrowseListings extends JPanel {
 
         // action Listeners for listing categories
         accessoriesButton.addActionListener(event -> {
-            filterByCategory("Accessories");
+            selectCategory("Accessories");
         });
 
         bagsButton.addActionListener(event -> {
-            filterByCategory("Bags");
+            selectCategory("Bags");
         });
 
         clothingsButton.addActionListener(event -> {
-            filterByCategory("Clothing");
+            selectCategory("Clothing");
         });
 
         electronicsButton.addActionListener(event -> {
-            filterByCategory("Electronics");
+            selectCategory("Electronics");
         });
 
         resetButton.addActionListener(event -> {
-            filterByCategory("All");
+            resetFilters();
         });
 
         searchField.addActionListener(event -> {
@@ -154,24 +161,24 @@ public class BrowseListings extends JPanel {
 
 
         // action listeners for locations
-        dmf.addActionListener(event -> {
-            searchByLocation("DMF");
+        dmfButton.addActionListener(event -> {
+            selectLocation("DMF");
         });
-        rsu.addActionListener(event ->{
-            searchByLocation("RSU");
+        rsuButton.addActionListener(event ->{
+            selectLocation("RSU");
 
         });
-        hunt.addActionListener(event ->{
-            searchByLocation("Hunt");
+        huntButton.addActionListener(event ->{
+            selectLocation("Hunt");
         });
-        crim.addActionListener(event ->{
-            searchByLocation("Crimson");
+        crimButton.addActionListener(event ->{
+            selectLocation("Crimson");
         });
-        maxwell.addActionListener(event ->{
-            searchByLocation("Maxwell");
+        maxwellButton.addActionListener(event ->{
+            selectLocation("Maxwell");
         });
-        burnell.addActionListener(event ->{
-            searchByLocation("Burnell");
+        burnellButton.addActionListener(event ->{
+            selectLocation("Burnell");
         });
 
 
@@ -227,38 +234,73 @@ public class BrowseListings extends JPanel {
 
     }
 
+    private void selectCategory(String category) {
+        if (category.equalsIgnoreCase(currentCategory)) {
+            currentCategory = null;
+        } else {
+            currentCategory = category;
+        }
+        updateFilterButtonStyles();
+        makeSearch();
+    }
+
+    private void selectLocation(String location) {
+        if (location.equalsIgnoreCase(currentLocation)) {
+            currentLocation = null;
+        } else {
+            currentLocation = location;
+        }
+        updateFilterButtonStyles();
+        makeSearch();
+    }
+
+    private void resetFilters() {
+        currentCategory = null;
+        currentLocation = null;
+        currentKeyword = null;
+        searchField.setText("");
+        updateFilterButtonStyles();
+        makeSearch();
+    }
+
     private void makeSearch() {
-        String keyword = searchField.getText();
-        currentKeyword = keyword;
-        setPosts(postService.searchByKeyword(keyword));
+        currentKeyword = searchField.getText();
+        setPosts(postService.search(currentKeyword, currentCategory, currentLocation));
     }
 
-    private void searchByLocation(String location){
-        setPosts(postService.searchByLocation(location));
+    private void updateFilterButtonStyles() {
+        setButtonActive(accessoriesButton, "Accessories".equalsIgnoreCase(currentCategory));
+        setButtonActive(bagsButton, "Bags".equalsIgnoreCase(currentCategory));
+        setButtonActive(clothingsButton, "Clothing".equalsIgnoreCase(currentCategory));
+        setButtonActive(electronicsButton, "Electronics".equalsIgnoreCase(currentCategory));
+
+        setButtonActive(dmfButton, "DMF".equalsIgnoreCase(currentLocation));
+        setButtonActive(rsuButton, "RSU".equalsIgnoreCase(currentLocation));
+        setButtonActive(huntButton, "Hunt".equalsIgnoreCase(currentLocation));
+        setButtonActive(crimButton, "Crimson".equalsIgnoreCase(currentLocation));
+        setButtonActive(maxwellButton, "Maxwell".equalsIgnoreCase(currentLocation));
+        setButtonActive(burnellButton, "Burnell".equalsIgnoreCase(currentLocation));
     }
 
-    private void filterByCategory(String category) {
-        if (category.equalsIgnoreCase("All")) {
-            setPosts(allPosts);
-            return;
-        }
+    private void setButtonActive(JButton button, boolean active) {
+        Font current = button.getFont();
 
-        List<Post> filteredPosts = new ArrayList<>();
-
-        for (Post post : allPosts) {
-            if (post.getCategory() != null
-                    && post.getCategory().equalsIgnoreCase(category)) {
-                filteredPosts.add(post);
+        if (active) {
+            // Use FlatLaf's theme accent color, or fall back to a bright blue on 3rd-party black themes
+            Color activeBg = UIManager.getColor("Component.accentColor");
+            if (activeBg == null) {
+                activeBg = new Color(37, 99, 235);
             }
-        }
-        setPosts(filteredPosts);
-    }
 
-    /**
-     * Search by using both keyword and category
-     */
-    private void applyFilter(){
-        //postService.filterPost(currentKeyword, currentCategory);
+            button.setBackground(activeBg);
+            button.setForeground(Color.WHITE);
+            button.setFont(current.deriveFont(Font.BOLD));
+        } else {
+            // Restore the FlatLaf dark theme's default button colors
+            button.setBackground(UIManager.getColor("Button.background"));
+            button.setForeground(UIManager.getColor("Button.foreground"));
+            button.setFont(current.deriveFont(Font.PLAIN));
+        }
     }
 
     public void setPosts(List<Post> posts) {
@@ -365,8 +407,6 @@ public class BrowseListings extends JPanel {
         // build or rebuild depending on the user role
         addPostPanel.setVisible(user.isAdmin());
 
-        setPosts(allPosts);
-
         headerPanel.revalidate();
         headerPanel.repaint();
 
@@ -379,10 +419,10 @@ public class BrowseListings extends JPanel {
     }
 
     public void refreshPosts(){
-        setPosts(allPosts);
+        makeSearch();
     }
     public void removePost(Post post) {
         allPosts.remove(post);
-        setPosts(allPosts);
+        makeSearch();
     }
 }

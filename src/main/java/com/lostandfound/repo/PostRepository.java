@@ -46,4 +46,5 @@ public interface PostRepository {
 
     void updateExpiredStatus();
 
+    List<Post> search(String keyword, String category, String location, boolean isAdmin);
 }

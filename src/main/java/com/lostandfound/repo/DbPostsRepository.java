@@ -7,6 +7,7 @@ import com.lostandfound.model.Post;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class DbPostsRepository implements PostRepository {
     private final Database db;
@@ -17,20 +18,20 @@ public class DbPostsRepository implements PostRepository {
 
     public long save(Post post) {
         String sql = """ 
-               INSERT OR IGNORE INTO Listings (
-               status,
-               date_listed,
-               description,
-               category,
-               product_name,
-               expiration_date,
-               user_id,
-               photo,
-               value_status,
-               location)
-               VALUES
-               (?,?,?,?,?,?,?,?,?,?);
-                """;
+            INSERT OR IGNORE INTO Listings (
+            status,
+            date_listed,
+            description,
+            category,
+            product_name,
+            expiration_date,
+            user_id,
+            photo,
+            value_status,
+            location)
+            VALUES
+            (?,?,?,?,?,?,?,?,?,?);
+            """;
         try (Connection conn = db.getConnection()) {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, post.getStatus());
@@ -53,8 +54,8 @@ public class DbPostsRepository implements PostRepository {
                         return ID;
                     }
                 }
-            // This would have been duped data, so send back the row that alr exists
-            }else{
+                // This would have been duped data, so send back the row that alr exists
+            } else {
                 sql = "SELECT listing_id FROM listings WHERE product_name = ? AND user_id = ? AND date_listed = ?";
                 // Compile
                 ps = conn.prepareStatement(sql);
@@ -77,7 +78,7 @@ public class DbPostsRepository implements PostRepository {
 
     // Search the DB for a single post based on the ID
     // Needed this for debug
-    public Post findById(long ID){
+    public Post findById(long ID) {
         // Initialization
         String sql = "SELECT * FROM Listings WHERE listing_id = ?";
         Post post = new Post();
@@ -85,8 +86,8 @@ public class DbPostsRepository implements PostRepository {
         try (Connection conn = db.getConnection()) {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setLong(1, ID);
-            try(ResultSet rs = ps.executeQuery()){
-                while(rs.next()){
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
                     post = rowToPost(rs);
                 }
             }
@@ -98,7 +99,7 @@ public class DbPostsRepository implements PostRepository {
 
 
     // Searches for all posts
-    public List<Post> findAll(){
+    public List<Post> findAll() {
         String sql = """
             SELECT * FROM Listings
             """;
@@ -117,7 +118,7 @@ public class DbPostsRepository implements PostRepository {
         return posts;
     }
 
-    public List<Post> findAllForUser(){
+    public List<Post> findAllForUser() {
         String sql = """
             SELECT * FROM Listings
             WHERE is_expired = 0 AND status <> 'claimed'
@@ -144,14 +145,60 @@ public class DbPostsRepository implements PostRepository {
             UPDATE Listings SET is_expired = 1 WHERE expiration_date <= date('now') AND is_expired = 0;
             """;
 
-        try(Connection conn = db.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)){
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.executeUpdate();
 
         } catch (SQLException e) {
             throw new RuntimeException("Failed to update expired post status", e);
         }
+    }
+
+    @Override
+    public List<Post> search(String keyword, String category, String location, boolean isAdmin) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM Listings WHERE 1=1");
+        List<String> params = new ArrayList<>();
+
+        if (!isAdmin) {
+            sql.append("AND is_expired = 0 AND status <> 'claimed'");
+        }
+        if (keyword != null && !keyword.isBlank()) {
+            sql.append(" AND (LOWER(product_name) LIKE ? OR LOWER(description) LIKE ?)");
+            String pattern = "%" + keyword.trim().toLowerCase() + "%";
+            params.add(pattern);
+            params.add(pattern);
+        }
+
+        if (category != null && !category.isBlank()) {
+            sql.append(" AND LOWER(category) = ?");
+            params.add(category.trim().toLowerCase());
+        }
+
+        if (location != null && !location.isBlank()) {
+            sql.append(" AND LOWER(location) LIKE ?");
+            params.add("%" + location.trim().toLowerCase() + "%");
+        }
+
+        List<Post> results = new ArrayList<>();
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setString(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    results.add(rowToPost(rs));
+                }
+            }
+        } catch (SQLException e) {
+            // Todo: will return DataAccessException after global error handling
+            throw new RuntimeException("Error searching posts", e);
+        }
+        return results;
     }
 
     public List<Post> searchCategory(String category) {
@@ -174,7 +221,7 @@ public class DbPostsRepository implements PostRepository {
 
     @Override
     public List<Post> searchByKeyword(String keyword) {
-        String pattern = "%" + keyword + "%";
+        String pattern = "%" + keyword.trim().toLowerCase() + "%";
         String sql = """
             SELECT *
             FROM Listings
@@ -190,7 +237,7 @@ public class DbPostsRepository implements PostRepository {
             ps.setString(1, pattern);
             ps.setString(2, pattern);
 
-            try(ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Post post = rowToPost(rs);
 
@@ -224,7 +271,7 @@ public class DbPostsRepository implements PostRepository {
             ps.setString(1, pattern);
             ps.setString(2, pattern);
             // Try to actually query
-            try(ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 // While there are still rows to search
                 while (rs.next()) {
                     // Create a new post object with the helper method
@@ -246,19 +293,19 @@ public class DbPostsRepository implements PostRepository {
         // Init
         String locationPattern = "%" + location.toUpperCase() + "%";
         String sql = """
-                SELECT * 
-                FROM Listings 
-                WHERE UPPER(location) LIKE ? 
-                """;
+            SELECT * 
+            FROM Listings 
+            WHERE UPPER(location) LIKE ? 
+            """;
         List<Post> posts = new ArrayList<>();
-        try(Connection conn = db.getConnection()){
+        try (Connection conn = db.getConnection()) {
             // prepare sql
             PreparedStatement ps = conn.prepareStatement(sql);
 
             // insert var
-            ps.setString(1,locationPattern);
-            try(ResultSet rs = ps.executeQuery()){
-                while(rs.next()){
+            ps.setString(1, locationPattern);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
                     // create new object
                     Post post = rowToPost(rs);
 
@@ -268,32 +315,32 @@ public class DbPostsRepository implements PostRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error searching posts by location",e);
+            throw new RuntimeException("Error searching posts by location", e);
         }
 
         // send back up the array
         return posts;
     }
 
-    public List<Post> searchByLocationForUser(String location){
+    public List<Post> searchByLocationForUser(String location) {
         // Init
         String locationPattern = "%" + location.toUpperCase() + "%";
         String sql = """
-                SELECT * 
-                FROM Listings 
-                WHERE (is_expired = 0) 
-                    AND UPPER(location) LIKE ? 
-                    AND LOWER(status) <> 'claimed'
-                """;
+            SELECT * 
+            FROM Listings 
+            WHERE (is_expired = 0) 
+                AND UPPER(location) LIKE ? 
+                AND LOWER(status) <> 'claimed'
+            """;
         List<Post> posts = new ArrayList<>();
-        try(Connection conn = db.getConnection()){
+        try (Connection conn = db.getConnection()) {
             // prepare sql
             PreparedStatement ps = conn.prepareStatement(sql);
 
             // insert var
-            ps.setString(1,locationPattern);
-            try(ResultSet rs = ps.executeQuery()){
-                while(rs.next()){
+            ps.setString(1, locationPattern);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
                     // create new object
                     Post post = rowToPost(rs);
 
@@ -303,7 +350,7 @@ public class DbPostsRepository implements PostRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error searching non-expired and unclaimed posts by location",e);
+            throw new RuntimeException("Error searching non-expired and unclaimed posts by location", e);
         }
 
         // send back up the array
@@ -311,7 +358,7 @@ public class DbPostsRepository implements PostRepository {
     }
 
     // Helper method for turning rows into a Post
-    private Post rowToPost(ResultSet rs) throws SQLException{
+    private Post rowToPost(ResultSet rs) throws SQLException {
         // Initialization
         Post post = new Post();
 
@@ -354,16 +401,16 @@ public class DbPostsRepository implements PostRepository {
 
     public void updatePost(Post post) {
         String sql = """
-                UPDATE Listings
-                SET description = ?,
-                    category = ?,
-                    product_name = ?,
-                    expiration_date = ?,
-                    photo = ?,
-                    value_status = ?,
-                    location = ?
-                WHERE listing_id = ?;
-                """;
+            UPDATE Listings
+            SET description = ?,
+                category = ?,
+                product_name = ?,
+                expiration_date = ?,
+                photo = ?,
+                value_status = ?,
+                location = ?
+            WHERE listing_id = ?;
+            """;
 
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -395,19 +442,19 @@ public class DbPostsRepository implements PostRepository {
         }
     }
 
-    public boolean createClaim(long listingID, int userID){
+    public boolean createClaim(long listingID, int userID) {
         // coalesce will turn a null value into '', even though there should be no nulls
         // <> claimed will reject any claim attempts if the item is already claimed
         String sql = """
-                INSERT INTO Claims (listing_id, user_id, status)
-                SELECT listing_id, ?, 'pending' FROM Listings WHERE
-                listing_id = ? 
-                    AND LOWER(COALESCE(status, '')) <> 'claimed'
-                ON CONFLICT(listing_id, user_id) DO NOTHING
-                """;
+            INSERT INTO Claims (listing_id, user_id, status)
+            SELECT listing_id, ?, 'pending' FROM Listings WHERE
+            listing_id = ? 
+                AND LOWER(COALESCE(status, '')) <> 'claimed'
+            ON CONFLICT(listing_id, user_id) DO NOTHING
+            """;
 
         // connect to db
-        try (Connection conn = db.getConnection()){
+        try (Connection conn = db.getConnection()) {
             // prep sql
             PreparedStatement ps = conn.prepareStatement(sql);
 
@@ -416,9 +463,9 @@ public class DbPostsRepository implements PostRepository {
             ps.setLong(2, listingID);
 
             // return feedback based on if ps updates one and only one row
-            if(ps.executeUpdate() == 1){
+            if (ps.executeUpdate() == 1) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
         } catch (SQLException e) {
@@ -427,24 +474,24 @@ public class DbPostsRepository implements PostRepository {
     }
 
 
-    public List<Claim> findClaims(long listingID){
+    public List<Claim> findClaims(long listingID) {
         // init return var
         List<Claim> claims = new ArrayList<>();
 
         // prep sql
         String sql = """ 
-                SELECT 
-                c.claim_id,
-                c.listing_id,
-                c.user_id,
-                u.username,
-                c.status
-                FROM Claims c JOIN Users u ON u.user_id = c.user_id
-                WHERE c.listing_id = ?
-                    AND (c.status IS NULL OR LOWER(TRIM(c.status)) <> 'claimed')
-                """;
+            SELECT 
+            c.claim_id,
+            c.listing_id,
+            c.user_id,
+            u.username,
+            c.status
+            FROM Claims c JOIN Users u ON u.user_id = c.user_id
+            WHERE c.listing_id = ?
+                AND (c.status IS NULL OR LOWER(TRIM(c.status)) <> 'claimed')
+            """;
         // connect to db
-        try (Connection conn = db.getConnection()){
+        try (Connection conn = db.getConnection()) {
             // prep sql
             PreparedStatement ps = conn.prepareStatement(sql);
 
@@ -452,17 +499,17 @@ public class DbPostsRepository implements PostRepository {
             ps.setLong(1, listingID);
 
             // seek results
-            try(ResultSet rs = ps.executeQuery()){
+            try (ResultSet rs = ps.executeQuery()) {
                 // while there are still rows returned
-                while(rs.next()){
+                while (rs.next()) {
                     // create a claim object of the current row
                     //     public Claim(long claimID, long postID, int userID, String username, String status) {
                     Claim claim = new Claim(
-                            rs.getLong("claim_id"),
-                            rs.getLong("listing_id"),
-                            rs.getInt("user_id"),
-                            rs.getString("username"),
-                            rs.getString("status"));
+                        rs.getLong("claim_id"),
+                        rs.getLong("listing_id"),
+                        rs.getInt("user_id"),
+                        rs.getString("username"),
+                        rs.getString("status"));
 
                     // insert claim into list
                     claims.add(claim);
@@ -475,14 +522,14 @@ public class DbPostsRepository implements PostRepository {
         return claims;
     }
 
-    public void updateClaim(long claimID, String status){
+    public void updateClaim(long claimID, String status) {
         // prep sql
         String sql = """
-                UPDATE claims 
-                SET STATUS = ?
-                WHERE claim_id = ?
-                """;
-        try(Connection conn = db.getConnection()){
+            UPDATE claims 
+            SET STATUS = ?
+            WHERE claim_id = ?
+            """;
+        try (Connection conn = db.getConnection()) {
             // prep sql
             PreparedStatement ps = conn.prepareStatement(sql);
 
@@ -496,11 +543,11 @@ public class DbPostsRepository implements PostRepository {
         }
     }
 
-    public void deleteClaim(long claimID){
+    public void deleteClaim(long claimID) {
         // prep the sql
         String sql = "DELETE FROM Claims WHERE claim_id = ? ";
 
-        try(Connection conn = db.getConnection()){
+        try (Connection conn = db.getConnection()) {
             // prep sql
             PreparedStatement ps = conn.prepareStatement(sql);
 

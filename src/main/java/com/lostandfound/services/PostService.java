@@ -1,6 +1,7 @@
 package com.lostandfound.services;
 
 import com.lostandfound.model.Post;
+import com.lostandfound.model.User;
 import com.lostandfound.model.UserSession;
 import com.lostandfound.repo.PostRepository;
 
@@ -59,5 +60,15 @@ public class PostService {
 
     public void deletePost(long postID){
         postRepo.deletePost(postID);
+    }
+
+    public List<Post> search(String keyword, String category, String location) {
+        User currentUser = UserSession.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            throw new IllegalStateException("No logged-in user."); // or AuthorizationException
+        }
+
+        boolean isAdmin = currentUser.isAdmin();
+        return postRepo.search(keyword, category, location, isAdmin);
     }
 }
